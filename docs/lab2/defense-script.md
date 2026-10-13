@@ -48,20 +48,20 @@ SELECT id, name, status FROM communal_resources ORDER BY id;
    SQL-запросом с условием `tariff_rate <= ?`, а не перебором массива на
    клиенте».
 2. **Удалить услугу.** Нажать крестик на карточке плитки — «Кнопка
-   вызывает `POST /delete-resource`, который выполняет прямой SQL
+   вызывает `POST /utilities/:id/delete`, который выполняет прямой SQL
    `UPDATE`, без ORM — это отдельное требование методички именно для
    этого метода».
-3. **Перейти по url удалённой услуги.** Открыть `/feed/<id>` только что
+3. **Перейти по url удалённой услуги.** Открыть `/utilities/feed/<id>` только что
    удалённой — «Услуга в статусе deleted не отдаётся: метод ленты
    фильтрует по `status = 'published'`, поэтому получаем "услуга не
    найдена"».
-4. **Добавить услугу.** `/add` без черновика → ввести название → «Далее»
+4. **Добавить услугу.** `/utilities/draft` без черновика → ввести название → «Далее»
    — «Форма создания принимает только название: фото и видео в этой
    лабораторной по методичке не сохраняются, только текстовое поле».
 5. **Select в БД после создания.** В Adminer — `SELECT * FROM
    communal_resources WHERE id = <новый>;` — «Статус черновика — draft,
    создатель проставлен константой, пока нет авторизации».
-6. **Опубликовать карточку.** Вернуться на `/add` — там уже форма
+6. **Опубликовать карточку.** Вернуться на `/utilities/draft` — там уже форма
    публикации с заполненным именем — заполнить описание, тариф, норматив,
    единицу измерения → «Опубликовать» — «Метод меняет статус на published
    и одним UPDATE заполняет остальные поля через ORM».
@@ -81,9 +81,9 @@ WHERE id = 1;
 INSERT INTO likes (user_id, communal_resource_id) VALUES (3, 6);
 ```
 
-Затем в браузере: `/` и `/feed/1` — новый тариф и норматив потребления
+Затем в браузере: `/` и `/utilities/feed/1` — новый тариф и норматив потребления
 видны сразу же, без перезапуска приложения (значит, данные реально идут
-из БД, а не захардкожены). `/feed/6` — счётчик лайков вырос на 1.
+из БД, а не захардкожены). `/utilities/feed/6` — счётчик лайков вырос на 1.
 
 **Что сказать:** «Меняю данные напрямую в базе, в обход приложения —
 и на фронтенде это отражается сразу, потому что оба метода (список и
@@ -164,10 +164,10 @@ case next:
 r.db.Where("status = ? AND creator_id = ?", ds.StatusDraft, creatorID).First(&draft)
 ```
 «Ищем черновик конкретного создателя. Если его нет — это не ошибка
-уровня приложения, а нормальная ситуация: тогда `/add` покажет форму
+уровня приложения, а нормальная ситуация: тогда `/utilities/draft` покажет форму
 создания, а не публикации».
 
-**4. `CreateCommunalResourceDraft` (POST /add, ORM)**
+**4. `CreateCommunalResourceDraft` (POST /utilities/draft, ORM)**
 ```go
 draft := ds.CommunalResource{Name: name, Status: ds.StatusDraft, CreatorID: creatorID, CreatedAt: time.Now()}
 r.db.Create(&draft)
@@ -175,7 +175,7 @@ r.db.Create(&draft)
 «Простой `INSERT` через ORM — создаём черновик с одним заполненным полем,
 остальные получают значения по умолчанию из тегов структуры».
 
-**5. `PublishCommunalResource` (POST /publish, ORM)**
+**5. `PublishCommunalResource` (POST /utilities/:id/publish, ORM)**
 ```go
 r.db.Model(&ds.CommunalResource{}).
     Where("id = ? AND status = ?", id, ds.StatusDraft).
@@ -186,7 +186,7 @@ r.db.Model(&ds.CommunalResource{}).
 draft` в `WHERE` — защита от повторной публикации уже опубликованной
 услуги».
 
-**6. `DeleteCommunalResource` (POST /delete-resource, СЫРОЙ SQL, без ORM)**
+**6. `DeleteCommunalResource` (POST /utilities/:id/delete, СЫРОЙ SQL, без ORM)**
 ```go
 r.db.Exec("UPDATE communal_resources SET status = ? WHERE id = ?", ds.StatusDeleted, id)
 ```
@@ -205,7 +205,7 @@ repository никогда не знает про `gin.Context`».
 
 ## Скриншот 22. Фото/видео по умолчанию в HTML
 
-Открыть `/feed/9` (или любую услугу с пустым `image_url`) → F12 →
+Открыть `/utilities/feed/9` (или любую услугу с пустым `image_url`) → F12 →
 Elements → найти:
 ```html
 <img src="/static/img/default-image.svg" alt="Отопление">
@@ -441,11 +441,11 @@ func New(dsn string) (*Repository, error) {
 | Метод | HTTP-метод/маршрут | Как | Что делает |
 |---|---|---|---|
 | `GetCommunalResources` | `GET /` | ORM | список опубликованных + фильтр по тарифу |
-| `GetCommunalResourceFeedItem` | `GET /feed/:id` | ORM | одна услуга или «следующая», одним запросом |
-| `GetCommunalResourceDraft` | `GET /add` | ORM | черновик текущего создателя (или nil) |
-| `CreateCommunalResourceDraft` | `POST /add` | ORM | создаёт черновик по названию |
-| `PublishCommunalResource` | `POST /publish` | ORM | заполняет поля, меняет статус на published |
-| `DeleteCommunalResource` | `POST /delete-resource` | сырой SQL | логическое удаление (status → deleted) |
+| `GetCommunalResourceFeedItem` | `GET /utilities/feed/:id` | ORM | одна услуга или «следующая», одним запросом |
+| `GetCommunalResourceDraft` | `GET /utilities/draft` | ORM | черновик текущего создателя (или nil) |
+| `CreateCommunalResourceDraft` | `POST /utilities/draft` | ORM | создаёт черновик по названию |
+| `PublishCommunalResource` | `POST /utilities/:id/publish` | ORM | заполняет поля, меняет статус на published |
+| `DeleteCommunalResource` | `POST /utilities/:id/delete` | сырой SQL | логическое удаление (status → deleted) |
 
 Плюс вспомогательный `GetLikesCount(resourceID)` — считает строки в
 `likes` для конкретной услуги (`SELECT COUNT(*) ... WHERE
@@ -459,12 +459,12 @@ communal_resource_id = ?`), используется и на плитке, и в
 ```go
 func (h *Handler) RegisterHandler(router *gin.Engine) {
     router.GET("/", h.Tile)
-    router.GET("/feed", h.Feed)
-    router.GET("/feed/:id", h.Feed)
-    router.GET("/add", h.Add)
-    router.POST("/add", h.CreateDraft)
-    router.POST("/publish", h.Publish)
-    router.POST("/delete-resource", h.Delete)
+    router.GET("/utilities/feed", h.Feed)
+    router.GET("/utilities/feed/:id", h.Feed)
+    router.GET("/utilities/draft", h.Add)
+    router.POST("/utilities/draft", h.CreateDraft)
+    router.POST("/utilities/:id/publish", h.Publish)
+    router.POST("/utilities/:id/delete", h.Delete)
 }
 ```
 Здесь буквально видна вся карта маршрутов приложения — семь строк, семь
@@ -508,9 +508,9 @@ type resourceView struct {
 4. Рендерит `tile.html`, передавая список карточек и исходное значение
    фильтра (`Tariff`) — чтобы поле ввода не очищалось после поиска.
 
-### `Feed` — GET /feed и /feed/:id
+### `Feed` — GET /utilities/feed и /feed/:id
 1. Достаёт `id` из URL (`ctx.Param("id")`) — если параметра нет
-   (маршрут `/feed`), `id` остаётся нулём.
+   (маршрут `/utilities/feed`), `id` остаётся нулём.
 2. Читает `?next=true` из query-строки.
 3. Вызывает `GetCommunalResourceFeedItem(id, next)` — вся логика «какую
    именно услугу показать» живёт в репозитории, хендлер просто
@@ -518,26 +518,26 @@ type resourceView struct {
 4. Если услуга не найдена (удалена или несуществующий id) — отдаёт 404
    с текстом «услуга не найдена», без падения приложения.
 
-### `Add` — GET /add
+### `Add` — GET /utilities/draft
 Просто спрашивает у репозитория черновик текущего пользователя и отдаёт
 его в шаблон. Вся развилка «форма создания или форма публикации» решается
 **в самом шаблоне** (`{{ if .Draft }}`) — хендлер знает только «черновик
 есть» или «черновика нет (nil)».
 
-### `CreateDraft` — POST /add
+### `CreateDraft` — POST /utilities/draft
 Читает одно поле формы (`name`) через `ctx.PostForm`, создаёт черновик,
-редиректит обратно на `/add` — GET-запрос после редиректа уже увидит
+редиректит обратно на `/utilities/draft` — GET-запрос после редиректа уже увидит
 только что созданный черновик и покажет форму публикации. Это стандартный
 веб-паттерн **Post/Redirect/Get**: он не даёт браузеру повторно отправить
 ту же форму при обновлении страницы (F5).
 
-### `Publish` — POST /publish
+### `Publish` — POST /utilities/:id/publish
 Читает пять полей формы, при этом числовые (`tariffRate`,
 `consumptionNorm`) явно парсятся через `strconv.ParseFloat` — если
 пользователь введёт не число, вернётся понятная ошибка 400, а не падение
 в SQL. Дальше — один вызов репозитория и редирект на плитку.
 
-### `Delete` — POST /delete-resource
+### `Delete` — POST /utilities/:id/delete
 Симметрично `Publish`, но проще: только `id`, вызов
 `DeleteCommunalResource`, редирект на `/`.
 

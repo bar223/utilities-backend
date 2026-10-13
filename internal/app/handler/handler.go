@@ -24,15 +24,17 @@ func NewHandler(r *repository.Repository) *Handler {
 	return &Handler{Repository: r}
 }
 
-// RegisterHandler регистрирует маршруты домена Utility.
+// RegisterHandler регистрирует маршруты домена Utility. Пути вложены под
+// /utilities — сущность явно видна в адресе, без общих названий действий
+// в одиночку (/add, /publish, /delete).
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/", h.Tile)
-	router.GET("/feed", h.Feed)
-	router.GET("/feed/:id", h.Feed)
-	router.GET("/add", h.Add)
-	router.POST("/add", h.CreateDraft)
-	router.POST("/publish", h.Publish)
-	router.POST("/delete-utility", h.Delete)
+	router.GET("/utilities/feed", h.Feed)
+	router.GET("/utilities/feed/:id", h.Feed)
+	router.GET("/utilities/draft", h.Add)
+	router.POST("/utilities/draft", h.CreateDraft)
+	router.POST("/utilities/:id/publish", h.Publish)
+	router.POST("/utilities/:id/delete", h.Delete)
 }
 
 // RegisterStatic регистрирует шаблоны и статику.

@@ -145,13 +145,13 @@ func (h *Handler) CreateDraft(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusFound, "/add")
+	ctx.Redirect(http.StatusFound, "/utilities/draft")
 }
 
-// Publish — POST /publish, кнопка «Опубликовать»: заполняет оставшиеся
-// поля черновика и меняет статус на «опубликован».
+// Publish — POST /utilities/:id/publish, кнопка «Опубликовать»: заполняет
+// оставшиеся поля черновика и меняет статус на «опубликован».
 func (h *Handler) Publish(ctx *gin.Context) {
-	idStr := ctx.PostForm("id")
+	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
@@ -180,10 +180,10 @@ func (h *Handler) Publish(ctx *gin.Context) {
 	ctx.Redirect(http.StatusFound, "/")
 }
 
-// Delete — POST /delete-resource: логическое удаление услуги с плитки
-// прямым SQL UPDATE.
+// Delete — POST /utilities/:id/delete: логическое удаление услуги с
+// плитки прямым SQL UPDATE.
 func (h *Handler) Delete(ctx *gin.Context) {
-	idStr := ctx.PostForm("id")
+	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)

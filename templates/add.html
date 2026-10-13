@@ -10,9 +10,7 @@
 <div class="app-frame">
     <main class="add-page">
         {{ if .Draft }}
-        <form action="/publish" method="post">
-            <input type="hidden" name="id" value="{{ .Draft.ID }}">
-
+        <form action="/utilities/{{ .Draft.ID }}/publish" method="post">
             <div class="field">
                 <span>Заголовок:</span>
                 <input type="text" value="{{ .Draft.Name }}" disabled>
@@ -41,7 +39,7 @@
             <button type="submit" class="primary-btn">Опубликовать</button>
         </form>
         {{ else }}
-        <form action="/add" method="post">
+        <form action="/utilities/draft" method="post">
             <!-- Выбор файлов доступен только на этом шаге, до "Далее" —
                  в лабораторной 2 сами файлы не сохраняются (требование
                  методички), поля нужны только для полноты интерфейса. -->

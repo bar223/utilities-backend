@@ -26,7 +26,7 @@
         <div class="grid">
             {{ range .Utilities }}
             <div class="card-wrap">
-                <a class="card" href="/feed/{{ .ID }}">
+                <a class="card" href="/utilities/feed/{{ .ID }}">
                     <img src="{{ .DisplayImageURL }}" alt="{{ .Name }}">
                     <div class="info">
                         <p class="name">{{ .Name }}</p>
@@ -37,8 +37,7 @@
                         </p>
                     </div>
                 </a>
-                <form action="/delete-utility" method="post" class="delete-form">
-                    <input type="hidden" name="id" value="{{ .ID }}">
+                <form action="/utilities/{{ .ID }}/delete" method="post" class="delete-form">
                     <button type="submit" title="Удалить услугу">✕</button>
                 </form>
             </div>
