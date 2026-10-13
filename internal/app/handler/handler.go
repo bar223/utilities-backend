@@ -45,6 +45,9 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST("/utilities/:id/publish", h.Publish)
 	router.POST("/utilities/:id/delete", h.Delete)
 	router.POST("/utilities/:id/like", h.Like)
+
+	router.GET("/users/register", h.RegisterPage)
+	router.POST("/users/register", h.RegisterSubmit)
 }
 
 // RegisterAPIHandler регистрирует REST JSON API лабораторной 3 — тестируется

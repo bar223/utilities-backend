@@ -482,3 +482,22 @@ a {
     font-size: 13px;
     color: var(--text-muted);
 }
+
+/* ---------- страница «Регистрация» ---------- */
+
+.page-title {
+    font-size: 20px;
+    margin: 0 0 16px;
+    color: var(--text);
+}
+
+.form-error {
+    color: #ed1c1c;
+    font-size: 14px;
+    margin: 0 0 12px;
+}
+
+.form-success {
+    color: var(--text);
+    font-size: 15px;
+}
