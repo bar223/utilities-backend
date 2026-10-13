@@ -32,11 +32,13 @@
                         <p class="name">{{ .Name }}</p>
                         <p class="tariff">{{ .TariffRate }} руб/{{ .MeasurementUnit }}</p>
                         <p class="likes">
-                            <span class="like-button">{{ template "heart-icon" }}</span>
+                            {{ template "heart-icon" }}
                             {{ .LikesCount }}
                         </p>
                     </div>
                 </a>
+                <!-- на плитке лайк — только индикатор (счётчик выше, в
+                     .info); сама кнопка лайка — на ленте -->
                 <form action="/utilities/{{ .ID }}/delete" method="post" class="delete-form">
                     <button type="submit" title="Удалить услугу">✕</button>
                 </form>

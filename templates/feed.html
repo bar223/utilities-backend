@@ -13,10 +13,12 @@
             <video src="{{ .Utility.DisplayVideoURL }}" poster="{{ .Utility.DisplayImageURL }}" autoplay loop muted playsinline></video>
 
             <div class="feed-side-actions">
-                <span class="feed-likes like-button">
-                    {{ template "heart-icon" }}
-                    <span>{{ .Utility.LikesCount }}</span>
-                </span>
+                <form action="/utilities/{{ .Utility.ID }}/like" method="post" class="feed-like-form">
+                    <button type="submit" class="feed-likes like-button {{ if .Utility.Liked }}liked{{ end }}" title="{{ if .Utility.Liked }}Убрать лайк{{ else }}Поставить лайк{{ end }}">
+                        {{ template "heart-icon" }}
+                        <span>{{ .Utility.LikesCount }}</span>
+                    </button>
+                </form>
 
                 <a class="feed-next" href="/utilities/feed/{{ .Utility.ID }}?next=true" title="Следующая услуга">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

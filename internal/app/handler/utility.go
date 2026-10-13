@@ -27,12 +27,17 @@ const sliderUnlimited = "101"
 type utilityView struct {
 	ds.Utility
 	LikesCount      int64
+	Liked           bool // лайкнул ли текущий пользователь — для кнопки
 	DisplayImageURL string
 	DisplayVideoURL string
 }
 
 func (h *Handler) toView(u ds.Utility) utilityView {
 	likes, err := h.Repository.GetLikesCount(u.ID)
+	if err != nil {
+		logrus.Error(err)
+	}
+	liked, err := h.Repository.IsLikedByUser(CurrentUserID(), u.ID)
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -49,9 +54,44 @@ func (h *Handler) toView(u ds.Utility) utilityView {
 	return utilityView{
 		Utility:         u,
 		LikesCount:      likes,
+		Liked:           liked,
 		DisplayImageURL: imageURL,
 		DisplayVideoURL: videoURL,
 	}
+}
+
+// Like — POST /utilities/:id/like: ставит или снимает лайк текущего
+// пользователя без JavaScript — обычная форма-кнопка, переключающая
+// состояние на сервере, с редиректом обратно на страницу, откуда пришёл
+// запрос (Referer).
+func (h *Handler) Like(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	liked, err := h.Repository.IsLikedByUser(CurrentUserID(), uint(id))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	value := 1
+	if liked {
+		value = 0 // уже лайкнул — повторное нажатие снимает лайк
+	}
+
+	if err := h.Repository.SetLike(CurrentUserID(), uint(id), value); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	back := ctx.Request.Referer()
+	if back == "" {
+		back = "/"
+	}
+	ctx.Redirect(http.StatusFound, back)
 }
 
 // Tile — GET /: страница «Плитка», список опубликованных Utility в две

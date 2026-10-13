@@ -300,6 +300,19 @@ a {
     font: inherit;
     /* цвет текста не задаём — его определяет конкретное место использования
        (.feed-likes — белый на фото, .card .likes — серый на карточке) */
+    cursor: pointer;
+}
+
+/* до лайка — контур, после — та же сплошная заливка, что и в Figma */
+.like-button .heart-icon {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.5;
+}
+
+.like-button.liked .heart-icon {
+    fill: #ed1c1c;
+    stroke: none;
 }
 
 .feed-next {
