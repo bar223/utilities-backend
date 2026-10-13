@@ -30,9 +30,14 @@
             <div class="feed-tariff">{{ .Utility.TariffRate }} руб/{{ .Utility.MeasurementUnit }}</div>
         </div>
 
+        <!-- раскрытие полного описания без JS — чекбокс спрятан, подпись
+             "Ещё.."/"Свернуть" работает как label для него -->
+        <input type="checkbox" id="desc-toggle" class="desc-toggle">
         <div class="feed-info">
             <h1>{{ .Utility.Name }}</h1>
-            <p>{{ .Utility.Description }} <span class="more">Ещё..</span></p>
+            <p class="description-text">{{ .Utility.Description }}</p>
+            <label for="desc-toggle" class="more more-open">Ещё..</label>
+            <label for="desc-toggle" class="more more-close">Свернуть</label>
             <p class="norm">Норматив потребления: {{ .Utility.ConsumptionNorm }} {{ .Utility.MeasurementUnit }}</p>
         </div>
     </div>

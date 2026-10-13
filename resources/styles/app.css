@@ -356,7 +356,43 @@ a {
 }
 
 .feed-info .more {
+    display: inline-block;
     color: var(--text-muted);
+    cursor: pointer;
+    font-size: 15px;
+}
+
+/* раскрытие описания без JS — спрятанный чекбокс + подписи-label */
+.desc-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.description-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.more-close {
+    display: none;
+}
+
+.desc-toggle:checked ~ .feed-info .description-text {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+}
+
+.desc-toggle:checked ~ .feed-info .more-open {
+    display: none;
+}
+
+.desc-toggle:checked ~ .feed-info .more-close {
+    display: inline-block;
 }
 
 /* ---------- страница «Добавление» ---------- */
@@ -500,4 +536,17 @@ a {
 .form-success {
     color: var(--text);
     font-size: 15px;
+}
+
+/* маленькая ссылка на регистрацию над фильтром плитки */
+.register-link {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.register-link:hover {
+    color: var(--accent);
 }
