@@ -1,0 +1,99 @@
+{
+  "info": {
+    "name": "Utility Bills — Lab 3 REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "draftId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. GET список услуг (с фильтром)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/utilities?tariff=10", "host": ["{{baseUrl}}"], "path": ["utilities"], "query": [{ "key": "tariff", "value": "10" }] }
+      }
+    },
+    {
+      "name": "2. POST добавить услугу (с картинкой и видео)",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/utilities", "host": ["{{baseUrl}}"], "path": ["utilities"] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "name", "value": "Тестовая услуга из Postman", "type": "text" },
+            { "key": "image", "type": "file", "src": [] },
+            { "key": "video", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. GET получить черновик",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/utilities/draft", "host": ["{{baseUrl}}"], "path": ["utilities", "draft"] }
+      }
+    },
+    {
+      "name": "4. PUT опубликовать услугу",
+      "request": {
+        "method": "PUT",
+        "url": { "raw": "{{baseUrl}}/utilities/{{draftId}}", "host": ["{{baseUrl}}"], "path": ["utilities", "{{draftId}}"] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Описание из Postman\",\n  \"tariffRate\": 12.5,\n  \"consumptionNorm\": 3,\n  \"measurementUnit\": \"шт\"\n}"
+        }
+      }
+    },
+    {
+      "name": "5. GET лента без id",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/utilities/feed", "host": ["{{baseUrl}}"], "path": ["utilities", "feed"] }
+      }
+    },
+    {
+      "name": "6. GET лента по id ?next=true",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/utilities/feed/1?next=true", "host": ["{{baseUrl}}"], "path": ["utilities", "feed", "1"], "query": [{ "key": "next", "value": "true" }] }
+      }
+    },
+    {
+      "name": "7. POST поставить лайк",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/utilities/1/like", "host": ["{{baseUrl}}"], "path": ["utilities", "1", "like"] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"value\": 1\n}" }
+      }
+    },
+    {
+      "name": "8. DELETE удалить услугу",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{baseUrl}}/utilities/{{draftId}}", "host": ["{{baseUrl}}"], "path": ["utilities", "{{draftId}}"] }
+      }
+    },
+    {
+      "name": "9. POST зарегистрировать пользователя",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users", "register"] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"login\": \"newuser\",\n  \"password\": \"pass123\"\n}" }
+      }
+    },
+    {
+      "name": "10. GET услугу подробно (вложенный creator)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/utilities/1", "host": ["{{baseUrl}}"], "path": ["utilities", "1"] }
+      }
+    }
+  ]
+}
