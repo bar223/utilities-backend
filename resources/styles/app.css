@@ -105,24 +105,33 @@ a {
 
 .tariff-form {
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
-.tariff-form input {
-    width: 100%;
-    padding: 12px 18px;
-    font-size: 16px;
+.tariff-form-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.tariff-form-label .tariff-value {
+    font-weight: 700;
     color: var(--text);
-    border: 2px solid var(--accent);
-    border-radius: 14px;
-    outline: none;
-    appearance: textfield; /* убирает стрелки-степпер у числового поля */
-    -moz-appearance: textfield;
 }
 
-.tariff-form input::-webkit-outer-spin-button,
-.tariff-form input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.tariff-form input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    height: 20px;
+}
+
+.tariff-form .primary-btn {
+    padding: 10px;
+    font-size: 15px;
 }
 
 /* сетка занимает всё оставшееся место и делит его на 3 равные строки —
@@ -344,26 +353,52 @@ a {
     overflow: hidden; /* без прокрутки, как на плитке */
 }
 
-.upload-row {
+/* видео и фото выбираются друг под другом, а не рядом — и только на
+   шаге создания черновика (до кнопки "Далее") */
+.upload-stack {
     display: flex;
-    gap: 16px;
-    margin-bottom: 22px;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
 }
 
 .upload-box {
-    flex: 1;
-    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px;
     border: 2px solid var(--accent);
     border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    cursor: pointer;
 }
 
 .upload-box svg {
-    width: 42px;
-    height: 42px;
+    width: 32px;
+    height: 32px;
     stroke: var(--btn-navy);
+}
+
+.upload-box span {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.upload-box input[type="file"] {
+    max-width: 100%;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.upload-box input[type="file"]::file-selector-button {
+    padding: 6px 12px;
+    margin-right: 8px;
+    border: none;
+    border-radius: 10px;
+    background: var(--btn-navy);
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 .field {

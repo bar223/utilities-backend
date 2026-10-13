@@ -3,39 +3,35 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ .Resource.Name }} — Лента</title>
+    <title>{{ .Utility.Name }} — Лента</title>
     <link rel="stylesheet" href="/static/styles/app.css">
 </head>
 <body>
 <div class="app-frame">
     <div class="feed-page">
         <div class="feed-media">
-            {{ if .Resource.VideoURL }}
-            <video src="{{ .Resource.VideoURL }}" poster="{{ .Resource.DisplayImageURL }}" autoplay loop muted playsinline></video>
-            {{ else }}
-            <img src="{{ .Resource.DisplayImageURL }}" alt="{{ .Resource.Name }}">
-            {{ end }}
+            <video src="{{ .Utility.DisplayVideoURL }}" poster="{{ .Utility.DisplayImageURL }}" autoplay loop muted playsinline></video>
 
             <div class="feed-side-actions">
                 <span class="feed-likes like-button">
                     {{ template "heart-icon" }}
-                    <span>{{ .Resource.LikesCount }}</span>
+                    <span>{{ .Utility.LikesCount }}</span>
                 </span>
 
-                <a class="feed-next" href="/feed/{{ .Resource.ID }}?next=true" title="Следующая услуга">
+                <a class="feed-next" href="/feed/{{ .Utility.ID }}?next=true" title="Следующая услуга">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 4v16M6 14l6 6 6-6"/>
                     </svg>
                 </a>
             </div>
 
-            <div class="feed-tariff">{{ .Resource.TariffRate }} руб/{{ .Resource.MeasurementUnit }}</div>
+            <div class="feed-tariff">{{ .Utility.TariffRate }} руб/{{ .Utility.MeasurementUnit }}</div>
         </div>
 
         <div class="feed-info">
-            <h1>{{ .Resource.Name }}</h1>
-            <p>{{ .Resource.Description }} <span class="more">Ещё..</span></p>
-            <p class="norm">Норматив потребления: {{ .Resource.ConsumptionNorm }} {{ .Resource.MeasurementUnit }}</p>
+            <h1>{{ .Utility.Name }}</h1>
+            <p>{{ .Utility.Description }} <span class="more">Ещё..</span></p>
+            <p class="norm">Норматив потребления: {{ .Utility.ConsumptionNorm }} {{ .Utility.MeasurementUnit }}</p>
         </div>
     </div>
 

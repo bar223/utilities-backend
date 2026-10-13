@@ -17,14 +17,14 @@
 Сделано:
 
 - 3 таблицы (каскадное удаление не используется, статусы — soft delete):
-  `communal_resources`, `likes` (м-м пользователь-услуга), `users`;
+  `utilities`, `likes` (м-м пользователь-услуга), `users`;
 - поле по теме `consumptionNorm` (норматив потребления) добавлено к уже
   существующему `tariffRate` — оба поля числовые, `tariffRate`
   используется для фильтра на плитке;
 - 6 HTTP-методов: 3 GET через ORM (плитка, лента, черновик), создание
   черновика через ORM (`POST /add`), публикация через ORM
   (`POST /publish`), логическое удаление прямым SQL `UPDATE` без ORM
-  (`POST /delete-resource`);
+  (`POST /delete-utility`);
 - миграции — `cmd/migrate` (`go run ./cmd/migrate`);
 - в БД гарантированно есть услуги во всех трёх статусах: `draft`,
   `published` (×6), `deleted`.
@@ -41,21 +41,21 @@ go run ./cmd/utility-bills
 - PostgreSQL — `localhost:5433` (порт сдвинут с 5432 — на машине уже стоит
   нативный PostgreSQL, чтобы не занимать его порт)
 - Adminer — http://localhost:8081 (система: PostgreSQL, сервер: `postgres`,
-  логин/пароль — из `.env`, база — `utility_bills`)
+  логин/пароль — из `.env`, база — `utilities`)
 
 ### ER-диаграмма
 
 Таблицы для диаграммы в StarUML:
 
-- **communal_resources** — `id` PK, `name`, `description`, `status`,
+- **utilities** — `id` PK, `name`, `description`, `status`,
   `image_url`, `video_url`, `tariff_rate`, `consumption_norm`,
   `measurement_unit`, `created_at`, `published_at`, `creator_id` FK → users.id
-- **likes** — `id` PK, `user_id` FK → users.id, `communal_resource_id`
-  FK → communal_resources.id (уникальная пара)
+- **likes** — `id` PK, `user_id` FK → users.id, `utility_id`
+  FK → utilities.id (уникальная пара)
 - **users** — `id` PK, `login`, `password`, `is_moderator`
 
-Связи: `users` 1 — * `communal_resources` (создатель), `users` 1 — *
-`likes` * — 1 `communal_resources`.
+Связи: `users` 1 — * `utilities` (создатель), `users` 1 — *
+`likes` * — 1 `utilities`.
 
 ## Лабораторная работа 1 — SSR
 
@@ -70,7 +70,7 @@ go run ./cmd/utility-bills
 - веб-сервис на Go (Gin + `html/template`), архитектура по методическим
   указаниям курса: `cmd` → `internal/api` → `internal/app/handler` →
   `internal/app/repository`;
-- доменная коллекция `CommunalResource` в памяti, без БД (требование
+- доменная коллекция `CommunalResource` (с лабы 2 — `Utility`) в памяти, без БД (требование
   лабы 1) — 6 опубликованных услуг + 1 черновик;
 - три GET-метода: список с фильтром по тарифу, лента по ID с переходом
   «следующая услуга», получение черновика;
@@ -80,10 +80,12 @@ go run ./cmd/utility-bills
 
 ## Доменная модель
 
-### CommunalResource — коммунальный ресурс (услуга)
+### CommunalResource / Utility — коммунальный ресурс (услуга)
 
 Основная сущность варианта. Одна запись — один вид коммунального ресурса,
-по которому производится начисление.
+по которому производится начисление. В коде лабы 1 называлась
+`CommunalResource`, с лабы 2 переименована в `Utility` (таблица БД —
+`utilities`).
 
 | Поле | Тип | Описание |
 |---|---|---|
@@ -125,7 +127,7 @@ internal/
   api/                     сборка веб-сервиса: маршруты, шаблоны, статика
   app/
     handler/               обработчики HTTP-запросов
-    repository/            доменная коллекция CommunalResource
+    repository/            доступ к БД (Utility, User, Like)
 templates/                 html/template-шаблоны трёх страниц
 resources/styles/          CSS
 docs/lab1/                 скриншоты защиты лабораторной работы 1
@@ -141,7 +143,8 @@ go run ./cmd/utility-bills
 
 Приложение слушает `:8080`:
 
-- `/` — плитка, список опубликованных услуг, фильтр по тарифу (`?tariff=`)
+- `/` — плитка, список опубликованных услуг, фильтр по тарифу — слайдер
+  с кнопкой «Применить» (`?tariff=`)
 - `/feed/:id` — лента, переход к следующей услуге через `?next=true`
   (после последней — снова первая)
 - `/add` — черновик
@@ -151,7 +154,7 @@ go run ./cmd/utility-bills
 Объектное хранилище MinIO разворачивается в Docker Desktop по методическим
 указаниям курса ([Установка и администрирование Minio](https://github.com/iu5git/Web/blob/main/tutorials/minio/MinIO_bucket_setup_ReadMe.md)).
 
-- контейнер — `utility-bills-minio`
+- контейнер — `utilities-minio`
 - S3 API — http://localhost:9000
 - веб-консоль — http://localhost:9001 (логин `root`, пароль `rootpassword`)
 
@@ -159,15 +162,15 @@ go run ./cmd/utility-bills
 образец — `.env.example`). Данные хранилища лежат в именованном томе
 `minio-data`, а не в каталоге проекта.
 
-### Бакет `utility-bills`
+### Бакет `utilities`
 
 По умолчанию бакеты в MinIO приватные. Бакет создаётся и открывается
 на чтение командами:
 
 ```bash
-docker exec -it utility-bills-minio mc alias set myminio http://localhost:9000 root rootpassword
-docker exec -it utility-bills-minio mc mb myminio/utility-bills
-docker exec -it utility-bills-minio mc anonymous set public myminio/utility-bills
+docker exec -it utilities-minio mc alias set myminio http://localhost:9000 root rootpassword
+docker exec -it utilities-minio mc mb myminio/utilities
+docker exec -it utilities-minio mc anonymous set public myminio/utilities
 ```
 
 Изображения и видео ресурсов загружены с ключами на латинице — на них
@@ -182,4 +185,8 @@ docker exec -it utility-bills-minio mc anonymous set public myminio/utility-bill
 | Вывоз ТКО | `waste-removal.jpg` | `waste-removal.mp4` |
 | Капитальный ремонт | `capital-repair.webp` | `capital-repair.mp4` |
 
-Пример ссылки: `http://localhost:9000/utility-bills/electricity.webp`
+Пример ссылки: `http://localhost:9000/utilities/electricity.webp`
+
+Если у услуги нет своего изображения или видео — подставляется заглушка,
+которая хранится прямо в коде (`resources/img/default-image.svg`,
+`resources/video/default-video.mp4`), а не в MinIO.

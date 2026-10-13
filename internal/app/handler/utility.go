@@ -10,40 +10,48 @@ import (
 	"utility-bills-backend/internal/app/ds"
 )
 
-// defaultImageURL — изображение по умолчанию, хранится вместе с иконками
-// на SSR-сервере (не в MinIO) и подставляется, если у услуги нет своего
-// изображения или указанный файл недоступен.
-const defaultImageURL = "/static/img/default-image.svg"
+// Изображение и видео по умолчанию хранятся прямо на SSR-сервере (не в
+// MinIO) и подставляются, если у услуги нет своего файла.
+const (
+	defaultImageURL = "/static/img/default-image.svg"
+	defaultVideoURL = "/static/video/default-video.mp4"
+)
 
-// resourceView — данные услуги для шаблонов: сама запись плюс количество
-// лайков (вычисляется по таблице likes) и изображение с фолбэком на
-// значение по умолчанию.
-type resourceView struct {
-	ds.CommunalResource
+// utilityView — данные услуги для шаблонов: сама запись плюс количество
+// лайков (вычисляется по таблице likes) и изображение/видео с фолбэком на
+// значения по умолчанию.
+type utilityView struct {
+	ds.Utility
 	LikesCount      int64
 	DisplayImageURL string
+	DisplayVideoURL string
 }
 
-func (h *Handler) toView(r ds.CommunalResource) resourceView {
-	likes, err := h.Repository.GetLikesCount(r.ID)
+func (h *Handler) toView(u ds.Utility) utilityView {
+	likes, err := h.Repository.GetLikesCount(u.ID)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	imageURL := r.ImageURL
+	imageURL := u.ImageURL
 	if imageURL == "" {
 		imageURL = defaultImageURL
 	}
+	videoURL := u.VideoURL
+	if videoURL == "" {
+		videoURL = defaultVideoURL
+	}
 
-	return resourceView{
-		CommunalResource: r,
-		LikesCount:       likes,
-		DisplayImageURL:  imageURL,
+	return utilityView{
+		Utility:         u,
+		LikesCount:      likes,
+		DisplayImageURL: imageURL,
+		DisplayVideoURL: videoURL,
 	}
 }
 
-// Tile — GET /: страница «Плитка», список опубликованных
-// CommunalResource в две колонки с фильтром по тарифу.
+// Tile — GET /: страница «Плитка», список опубликованных Utility в две
+// колонки с фильтром по тарифу.
 func (h *Handler) Tile(ctx *gin.Context) {
 	tariffQuery := ctx.Query("tariff")
 
@@ -56,25 +64,25 @@ func (h *Handler) Tile(ctx *gin.Context) {
 		}
 	}
 
-	resources, err := h.Repository.GetCommunalResources(maxTariffRate)
+	utilities, err := h.Repository.GetUtilities(maxTariffRate)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	views := make([]resourceView, 0, len(resources))
-	for _, r := range resources {
-		views = append(views, h.toView(r))
+	views := make([]utilityView, 0, len(utilities))
+	for _, u := range utilities {
+		views = append(views, h.toView(u))
 	}
 
 	ctx.HTML(http.StatusOK, "tile.html", gin.H{
-		"Resources": views,
+		"Utilities": views,
 		"Tariff":    tariffQuery,
 	})
 }
 
-// Feed — GET /feed и GET /feed/:id: страница «Лента», один
-// CommunalResource на экран, ?next=true — переход к следующему.
+// Feed — GET /feed и GET /feed/:id: страница «Лента», одна услуга на
+// экран, ?next=true — переход к следующей.
 func (h *Handler) Feed(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 
@@ -90,14 +98,14 @@ func (h *Handler) Feed(ctx *gin.Context) {
 
 	next := ctx.Query("next") == "true"
 
-	resource, err := h.Repository.GetCommunalResourceFeedItem(id, next)
+	utility, err := h.Repository.GetUtilityFeedItem(id, next)
 	if err != nil {
 		ctx.String(http.StatusNotFound, "услуга не найдена")
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "feed.html", gin.H{
-		"Resource": h.toView(resource),
+		"Utility": h.toView(utility),
 	})
 }
 
@@ -105,7 +113,7 @@ func (h *Handler) Feed(ctx *gin.Context) {
 // показывается форма создания (кнопка «Далее»), если уже есть — форма
 // публикации с заполненными полями (кнопка «Опубликовать»).
 func (h *Handler) Add(ctx *gin.Context) {
-	draft, err := h.Repository.GetCommunalResourceDraft(currentCreatorID)
+	draft, err := h.Repository.GetUtilityDraft(currentCreatorID)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -117,11 +125,13 @@ func (h *Handler) Add(ctx *gin.Context) {
 }
 
 // CreateDraft — POST /add, кнопка «Далее»: создаёт черновик по названию.
-// Фото и видео в лабораторной 2 не сохраняются (требование методички).
+// Фото и видео в лабораторной 2 не сохраняются (требование методички) —
+// поля выбора файла показаны для полноты интерфейса, но на сервер не
+// передаются.
 func (h *Handler) CreateDraft(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 
-	_, err := h.Repository.CreateCommunalResourceDraft(currentCreatorID, name)
+	_, err := h.Repository.CreateUtilityDraft(currentCreatorID, name)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -154,7 +164,7 @@ func (h *Handler) Publish(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.PublishCommunalResource(uint(id), description, tariffRate, consumptionNorm, measurementUnit); err != nil {
+	if err := h.Repository.PublishUtility(uint(id), description, tariffRate, consumptionNorm, measurementUnit); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -172,7 +182,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.DeleteCommunalResource(uint(id)); err != nil {
+	if err := h.Repository.DeleteUtility(uint(id)); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}

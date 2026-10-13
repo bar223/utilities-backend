@@ -20,7 +20,7 @@ func main() {
 
 	err = db.AutoMigrate(
 		&ds.User{},
-		&ds.CommunalResource{},
+		&ds.Utility{},
 		&ds.Like{},
 	)
 	if err != nil {

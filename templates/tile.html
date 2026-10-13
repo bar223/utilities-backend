@@ -10,11 +10,17 @@
 <div class="app-frame">
     <main class="tile-page">
         <form class="tariff-form" action="/" method="get">
-            <input type="number" step="0.01" name="tariff" placeholder="Тариф:" value="{{ .Tariff }}">
+            <div class="tariff-form-label">
+                <span>Тариф до:</span>
+                <span class="tariff-value">{{ if .Tariff }}{{ .Tariff }}{{ else }}не ограничен{{ end }}</span>
+            </div>
+            <input type="range" name="tariff" min="0" max="3000" step="10"
+                   value="{{ if .Tariff }}{{ .Tariff }}{{ else }}3000{{ end }}">
+            <button type="submit" class="primary-btn">Применить</button>
         </form>
 
         <div class="grid">
-            {{ range .Resources }}
+            {{ range .Utilities }}
             <div class="card-wrap">
                 <a class="card" href="/feed/{{ .ID }}">
                     <img src="{{ .DisplayImageURL }}" alt="{{ .Name }}">
@@ -27,7 +33,7 @@
                         </p>
                     </div>
                 </a>
-                <form action="/delete-resource" method="post" class="delete-form">
+                <form action="/delete-utility" method="post" class="delete-form">
                     <input type="hidden" name="id" value="{{ .ID }}">
                     <button type="submit" title="Удалить услугу">✕</button>
                 </form>

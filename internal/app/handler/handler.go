@@ -1,6 +1,6 @@
-// Package handler содержит обработчики HTTP-запросов домена
-// CommunalResource: получают параметры запроса, вызывают репозиторий и
-// передают данные в html/template.
+// Package handler содержит обработчики HTTP-запросов домена Utility:
+// получают параметры запроса, вызывают репозиторий и передают данные в
+// html/template.
 package handler
 
 import (
@@ -24,7 +24,7 @@ func NewHandler(r *repository.Repository) *Handler {
 	return &Handler{Repository: r}
 }
 
-// RegisterHandler регистрирует маршруты домена CommunalResource.
+// RegisterHandler регистрирует маршруты домена Utility.
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/", h.Tile)
 	router.GET("/feed", h.Feed)
@@ -32,7 +32,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/add", h.Add)
 	router.POST("/add", h.CreateDraft)
 	router.POST("/publish", h.Publish)
-	router.POST("/delete-resource", h.Delete)
+	router.POST("/delete-utility", h.Delete)
 }
 
 // RegisterStatic регистрирует шаблоны и статику.

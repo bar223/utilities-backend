@@ -2,16 +2,16 @@ package ds
 
 import "time"
 
-// Статусы CommunalResource — жизненный цикл записи справочника услуг.
+// Статусы Utility — жизненный цикл записи справочника услуг.
 const (
 	StatusDraft     = "draft"
 	StatusPublished = "published"
 	StatusDeleted   = "deleted"
 )
 
-// CommunalResource — коммунальный ресурс (услуга), основная сущность
-// варианта «Квитанция по квартплате». Таблица communal_resources.
-type CommunalResource struct {
+// Utility — коммунальный ресурс (услуга), основная сущность варианта
+// «Квитанция по квартплате». Таблица utilities.
+type Utility struct {
 	ID uint `gorm:"primaryKey"`
 
 	Name            string  `gorm:"type:varchar(100);not null"`
@@ -30,6 +30,6 @@ type CommunalResource struct {
 	Creator   User `gorm:"foreignKey:CreatorID"`
 }
 
-func (CommunalResource) TableName() string {
-	return "communal_resources"
+func (Utility) TableName() string {
+	return "utilities"
 }
