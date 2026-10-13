@@ -24,7 +24,7 @@ func main() {
 		logrus.Fatalf("error loading config: %v", err)
 	}
 
-	repo, err := repository.New(dsn.FromEnv())
+	repo, err := repository.New(repository.SettingsFromEnv(dsn.FromEnv()))
 	if err != nil {
 		logrus.Fatalf("error initializing repository: %v", err)
 	}

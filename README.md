@@ -7,6 +7,46 @@
 
 Фронтенд — репозиторий [utility-bills-frontend](https://github.com/bar223/utility-bills-frontend).
 
+## Лабораторная работа 3 — REST API
+
+Ветка: `lab3-rest-api`
+
+Тема лабораторной — веб-сервис: вся бизнес-логика вынесена в REST JSON API
+под `/api`, который тестируется напрямую через Postman/Insomnia — рядом,
+без замены, продолжают работать HTML-страницы (`/`, `/utilities/feed`,
+`/utilities/draft`) из лаб 1-2.
+
+### Методы API
+
+Все адреса начинаются с `/api`. Статусы меняются только в одну сторону
+(`draft → published`, `любой → deleted`) — вернуть в черновик нельзя.
+Записи в статусе `deleted` клиенту не отдаются.
+
+| Метод | URL | Описание |
+|---|---|---|
+| GET | `/api/utilities` | Список опубликованных услуг, фильтр `?tariff=`. Для каждой — `isMine` (создал ли текущий пользователь) |
+| GET | `/api/utilities/feed` | Лента: первая опубликованная услуга |
+| GET | `/api/utilities/feed/:id` | Лента: услуга по id, `?next=true` — следующая (после последней — снова первая). Для каждой — `liked` (лайкнул ли текущий пользователь) |
+| GET | `/api/utilities/draft` | Черновик текущего пользователя (не более одного). `data: null`, если черновика нет |
+| GET | `/api/utilities/:id` | Подробная информация об опубликованной услуге с вложенным создателем (`creator`) |
+| POST | `/api/utilities` | Создание черновика: `multipart/form-data` — `name` (обязательно), `image`, `video` (файлы, необязательно). Файлы реально загружаются в MinIO с латинскими именами `utility-<id>-image.<ext>` / `utility-<id>-video.<ext>` |
+| PUT | `/api/utilities/:id` | Публикация: JSON `{description, tariffRate, consumptionNorm, measurementUnit}`, статус → `published` |
+| DELETE | `/api/utilities/:id` | Логическое удаление — только своей услуги |
+| POST | `/api/utilities/:id/like` | JSON `{"value": 0 или 1}` — снять/поставить лайк текущего пользователя |
+| POST | `/api/users/register` | Регистрация: JSON `{login, password}` |
+| POST | `/api/users/login` | Заглушка — авторизация появится в лабораторной 4 |
+| POST | `/api/users/logout` | Заглушка — см. выше |
+
+Пользователь-создатель до появления авторизации зафиксирован
+функцией-синглтоном `handler.CurrentUserID()` — единственное место,
+которое изменится в лабораторной 4.
+
+### Таблицы БД
+
+См. раздел «ER-диаграмма» лабораторной 2 ниже — структура не менялась,
+добавилась только сериализация полей под JSON (`imageUrl`, `tariffRate`
+и т.д. вместо snake_case колонок).
+
 ## Лабораторная работа 2 — база данных
 
 Ветка: `lab2-database`

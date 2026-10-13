@@ -10,9 +10,18 @@ import (
 	"utility-bills-backend/internal/app/repository"
 )
 
-// currentCreatorID — создатель зафиксирован константой до появления
-// авторизации (добавится в лабораторной 4).
+// currentCreatorID оставлен для совместимости со старыми вызовами —
+// новый код использует функцию-синглтон CurrentUserID ниже.
 const currentCreatorID uint = 1
+
+// CurrentUserID — функция-синглтон: до появления авторизации (лаба 4)
+// пользователь-создатель зафиксирован одним и тем же ID во всех методах.
+// Требование методички лабораторной 3 — именно функция, а не голая
+// константа, чтобы в будущем заменить реализацию на чтение из JWT/сессии
+// в одном месте, не трогая вызывающий код.
+func CurrentUserID() uint {
+	return currentCreatorID
+}
 
 // Handler объединяет обработчики страниц вокруг общего репозитория.
 type Handler struct {
@@ -35,6 +44,27 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST("/utilities/draft", h.CreateDraft)
 	router.POST("/utilities/:id/publish", h.Publish)
 	router.POST("/utilities/:id/delete", h.Delete)
+}
+
+// RegisterAPIHandler регистрирует REST JSON API лабораторной 3 — тестируется
+// через Postman/Insomnia, отдельно от HTML-страниц лаб 1-2. По требованию
+// методички каждый адрес начинается с /api.
+func (h *Handler) RegisterAPIHandler(router *gin.Engine) {
+	api := router.Group("/api")
+
+	api.GET("/utilities", h.APIListUtilities)
+	api.GET("/utilities/feed", h.APIFeed)
+	api.GET("/utilities/feed/:id", h.APIFeed)
+	api.GET("/utilities/draft", h.APIGetDraft)
+	api.GET("/utilities/:id", h.APIGetUtility)
+	api.POST("/utilities", h.APICreateUtility)
+	api.PUT("/utilities/:id", h.APIPublishUtility)
+	api.DELETE("/utilities/:id", h.APIDeleteUtility)
+	api.POST("/utilities/:id/like", h.APISetLike)
+
+	api.POST("/users/register", h.APIRegister)
+	api.POST("/users/login", h.APILogin)
+	api.POST("/users/logout", h.APILogout)
 }
 
 // RegisterStatic регистрирует шаблоны и статику.

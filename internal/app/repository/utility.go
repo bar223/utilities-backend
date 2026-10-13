@@ -92,10 +92,12 @@ func (r *Repository) CreateUtilityDraft(creatorID uint, name string) (*ds.Utilit
 }
 
 // PublishUtility заполняет оставшиеся поля черновика и переводит его в
-// статус «опубликован» по кнопке «Опубликовать».
+// статус «опубликован» по кнопке «Опубликовать». Статусы нельзя менять
+// с любого на любой — условие "AND status = draft" пропускает только
+// переход черновик → опубликован, вернуть в черновик нельзя.
 func (r *Repository) PublishUtility(id uint, description string, tariffRate, consumptionNorm float64, measurementUnit string) error {
 	now := time.Now()
-	return r.db.Model(&ds.Utility{}).
+	res := r.db.Model(&ds.Utility{}).
 		Where("id = ? AND status = ?", id, ds.StatusDraft).
 		Updates(map[string]any{
 			"description":      description,
@@ -104,7 +106,14 @@ func (r *Repository) PublishUtility(id uint, description string, tariffRate, con
 			"measurement_unit": measurementUnit,
 			"status":           ds.StatusPublished,
 			"published_at":     now,
-		}).Error
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 // DeleteUtility — логическое удаление услуги прямым SQL UPDATE, без ORM
@@ -119,4 +128,27 @@ func (r *Repository) GetLikesCount(utilityID uint) (int64, error) {
 	var count int64
 	err := r.db.Model(&ds.Like{}).Where("utility_id = ?", utilityID).Count(&count).Error
 	return count, err
+}
+
+// GetUtility возвращает опубликованную услугу по ID с подгруженным
+// создателем (вложенная сериализация, Preload) — для подробной выдачи
+// REST API.
+func (r *Repository) GetUtility(id uint) (ds.Utility, error) {
+	var utility ds.Utility
+	err := r.db.Preload("Creator").Where("status = ? AND id = ?", ds.StatusPublished, id).First(&utility).Error
+	return utility, err
+}
+
+// DeleteUtilityOwned — логическое удаление услуги прямым SQL UPDATE, но
+// только если она принадлежит указанному создателю (требование REST API
+// лабораторной 3: удалять можно только свои услуги).
+func (r *Repository) DeleteUtilityOwned(id, creatorID uint) error {
+	res := r.db.Exec("UPDATE utilities SET status = ? WHERE id = ? AND creator_id = ?", ds.StatusDeleted, id, creatorID)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
