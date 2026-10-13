@@ -139,11 +139,15 @@ func (r *Repository) GetUtility(id uint) (ds.Utility, error) {
 	return utility, err
 }
 
-// DeleteUtilityOwned — логическое удаление услуги прямым SQL UPDATE, но
-// только если она принадлежит указанному создателю (требование REST API
-// лабораторной 3: удалять можно только свои услуги).
+// DeleteUtilityOwned — логическое удаление услуги через ORM (требование
+// методички лабы 3 — "взаимодействие с БД через ORM" для всех методов
+// REST API, в отличие от лабы 2, где сырой SQL требовался специально
+// для удаления). Удаляет, только если услуга принадлежит указанному
+// создателю.
 func (r *Repository) DeleteUtilityOwned(id, creatorID uint) error {
-	res := r.db.Exec("UPDATE utilities SET status = ? WHERE id = ? AND creator_id = ?", ds.StatusDeleted, id, creatorID)
+	res := r.db.Model(&ds.Utility{}).
+		Where("id = ? AND creator_id = ?", id, creatorID).
+		Update("status", ds.StatusDeleted)
 	if res.Error != nil {
 		return res.Error
 	}
