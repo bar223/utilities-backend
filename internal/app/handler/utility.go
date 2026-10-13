@@ -17,6 +17,10 @@ const (
 	defaultVideoURL = "/static/video/default-video.mp4"
 )
 
+// sliderUnlimited — крайнее положение слайдера фильтра на плитке,
+// означающее "без ограничения по тарифу".
+const sliderUnlimited = "101"
+
 // utilityView — данные услуги для шаблонов: сама запись плюс количество
 // лайков (вычисляется по таблице likes) и изображение/видео с фолбэком на
 // значения по умолчанию.
@@ -56,7 +60,11 @@ func (h *Handler) Tile(ctx *gin.Context) {
 	tariffQuery := ctx.Query("tariff")
 
 	var maxTariffRate *float64
-	if tariffQuery != "" {
+	// Крайнее положение слайдера (101) — отдельное значение "без
+	// ограничения", а не реальный тариф: диапазон 0-100 с шагом 1
+	// даёт точную настройку под основную массу тарифов, а это
+	// положение отдельно открывает и редкие дорогие услуги.
+	if tariffQuery != "" && tariffQuery != sliderUnlimited {
 		if parsed, err := strconv.ParseFloat(tariffQuery, 64); err == nil {
 			maxTariffRate = &parsed
 		} else {

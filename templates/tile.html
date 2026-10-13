@@ -12,10 +12,14 @@
         <form class="tariff-form" action="/" method="get">
             <div class="tariff-form-label">
                 <span>Тариф до:</span>
-                <span class="tariff-value">{{ if .Tariff }}{{ .Tariff }}{{ else }}не ограничен{{ end }}</span>
+                <span class="tariff-value">{{ if and .Tariff (ne .Tariff "101") }}{{ .Tariff }} руб.{{ else }}не ограничен{{ end }}</span>
             </div>
-            <input type="range" name="tariff" min="0" max="3000" step="10"
-                   value="{{ if .Tariff }}{{ .Tariff }}{{ else }}3000{{ end }}">
+            <!-- 0-100 — точный шаг в 1 руб. для основной массы тарифов,
+                 крайнее положение 101 — отдельное значение "без ограничения",
+                 чтобы не терять доступ к редким дорогим услугам (например,
+                 отопление) при таком узком и точном диапазоне -->
+            <input type="range" name="tariff" min="0" max="101" step="1"
+                   value="{{ if and .Tariff (ne .Tariff "101") }}{{ .Tariff }}{{ else }}101{{ end }}">
             <button type="submit" class="primary-btn">Применить</button>
         </form>
 
