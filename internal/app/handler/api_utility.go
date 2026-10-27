@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // maxUploadSize — лимит на размер данных формы с файлами (картинка +

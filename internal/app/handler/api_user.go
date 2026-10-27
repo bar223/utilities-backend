@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"utility-bills-backend/internal/app/repository"
+	"utilities-backend/internal/app/repository"
 )
 
 // registerRequest — тело запроса регистрации.

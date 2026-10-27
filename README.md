@@ -1,4 +1,4 @@
-# Utility Bills — backend
+# Utilities — backend
 
 Учебный проект по дисциплине **«Разработка Интернет Приложений» (РИП), 2026**.
 
@@ -61,10 +61,18 @@
 - поле по теме `consumptionNorm` (норматив потребления) добавлено к уже
   существующему `tariffRate` — оба поля числовые, `tariffRate`
   используется для фильтра на плитке;
-- 6 HTTP-методов: 3 GET через ORM (плитка, лента, черновик), создание
-  черновика через ORM (`POST /add`), публикация через ORM
-  (`POST /publish`), логическое удаление прямым SQL `UPDATE` без ORM
-  (`POST /delete-utility`);
+- 6 HTTP-методов: 3 GET через ORM (плитка `/`, лента
+  `/utilities/feed/:id`, черновик `/utilities/draft`), создание черновика
+  через ORM (`POST /utilities/draft`), публикация через ORM
+  (`POST /utilities/:id/publish`), логическое удаление прямым SQL `UPDATE`
+  без ORM (`POST /utilities/:id/delete`);
+- на странице «Добавление» сверху друг под другом видео и фото — на обоих
+  шагах («Далее» и «Опубликовать»); выбор файлов из проводника — только до
+  «Далее». Файлы на сервер не передаются, в обязательные поля `image_url`
+  и `video_url` записываются неверные ссылки — вместо них показываются
+  видео и картинка по умолчанию, которые хранятся на SSR-сервере
+  (`resources/`), а не в MinIO. Подмена делается без JavaScript:
+  `<object>` с вложенной картинкой и второй `<source>` у `<video>`;
 - миграции — `cmd/migrate` (`go run ./cmd/migrate`);
 - в БД гарантированно есть услуги во всех трёх статусах: `draft`,
   `published` (×6), `deleted`.
@@ -75,7 +83,7 @@
 ```bash
 docker compose up -d
 go run ./cmd/migrate      # создаёт схему
-go run ./cmd/utility-bills
+go run ./cmd/utilities
 ```
 
 - PostgreSQL — `localhost:5433` (порт сдвинут с 5432 — на машине уже стоит
@@ -87,9 +95,10 @@ go run ./cmd/utility-bills
 
 Таблицы для диаграммы в StarUML:
 
-- **utilities** — `id` PK, `name`, `description`, `status`,
-  `image_url`, `video_url`, `tariff_rate`, `consumption_norm`,
-  `measurement_unit`, `created_at`, `published_at`, `creator_id` FK → users.id
+- **utilities** — `id` PK, `name`, `description` N, `status`,
+  `image_url`, `video_url`, `tariff_rate` N, `consumption_norm` N,
+  `measurement_unit`, `created_at`, `published_at` N, `creator_id` FK → users.id
+  (N — необязательное поле, всего 4; подробно — `docs/lab2/er-diagram-spec.md`)
 - **likes** — `id` PK, `user_id` FK → users.id, `utility_id`
   FK → utilities.id (уникальная пара)
 - **users** — `id` PK, `login`, `password`, `is_moderator`
@@ -162,15 +171,20 @@ go run ./cmd/utility-bills
 ## Структура проекта
 
 ```
-cmd/utility-bills/        точка входа (main.go)
+cmd/utilities/           точка входа (main.go)
+cmd/migrate/             миграции (AutoMigrate по моделям ds)
 internal/
-  api/                     сборка веб-сервиса: маршруты, шаблоны, статика
+  pkg/                   сборка приложения: роутер, запуск сервера
   app/
-    handler/               обработчики HTTP-запросов
-    repository/            доступ к БД (Utility, User, Like)
-templates/                 html/template-шаблоны трёх страниц
-resources/styles/          CSS
-docs/lab1/                 скриншоты защиты лабораторной работы 1
+    config/              конфигурация (config/config.toml)
+    dsn/                 строка подключения к PostgreSQL из .env
+    ds/                  модели: Utility, User, Like
+    handler/             обработчики HTTP-запросов
+    repository/          доступ к БД (Utility, User, Like)
+templates/               html/template-шаблоны трёх страниц
+resources/styles/        CSS
+resources/img, video/    фото и видео по умолчанию (не в MinIO)
+docs/lab2/               скриншоты, сценарий защиты, ER-спецификация
 ```
 
 ## Запуск
@@ -178,16 +192,16 @@ docs/lab1/                 скриншоты защиты лабораторн�
 ```bash
 cp .env.example .env
 docker compose up -d   # поднимает MinIO
-go run ./cmd/utility-bills
+go run ./cmd/utilities
 ```
 
 Приложение слушает `:8080`:
 
 - `/` — плитка, список опубликованных услуг, фильтр по тарифу — слайдер
   с кнопкой «Применить» (`?tariff=`)
-- `/feed/:id` — лента, переход к следующей услуге через `?next=true`
-  (после последней — снова первая)
-- `/add` — черновик
+- `/utilities/feed/:id` — лента, переход к следующей услуге через
+  `?next=true` (после последней — снова первая)
+- `/utilities/draft` — черновик
 
 ## Инфраструктура: MinIO
 

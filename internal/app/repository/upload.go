@@ -10,7 +10,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // minioPublicURL собирает публичную ссылку на объект в бакете MinIO.

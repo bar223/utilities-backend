@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"utility-bills-backend/internal/app/config"
-	"utility-bills-backend/internal/app/dsn"
-	"utility-bills-backend/internal/app/handler"
-	"utility-bills-backend/internal/app/repository"
-	"utility-bills-backend/internal/pkg"
+	"utilities-backend/internal/app/config"
+	"utilities-backend/internal/app/dsn"
+	"utilities-backend/internal/app/handler"
+	"utilities-backend/internal/app/repository"
+	"utilities-backend/internal/pkg"
 )
 
 func main() {

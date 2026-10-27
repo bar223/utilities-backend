@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // ErrLoginTaken возвращается при попытке зарегистрировать уже занятый

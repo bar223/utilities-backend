@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // SetLike ставит (value=1) или снимает (value=0) лайк пользователя на

@@ -1,51 +1,60 @@
 # ER-диаграмма — данные для StarUML
 
-Создать: Model → добавить `ER Diagram` (или Data Model), в нём — 3 сущности
-(Entity), связи через Relationship (1 — *).
+Готовая диаграмма — `docs/diagrams/utilities.mdj` (ветка `lab3-rest-api`,
+вкладка «ER Diagram»). Оформление: без сетки (View → Grid off), под лист
+А4, таблицы компактными прямоугольниками.
 
-## Таблица 1: communal_resources
+Обозначения в колонке «Ключ»: PK — первичный ключ, FK — внешний ключ,
+U — уникальный, N — необязательный (NULL). Без N — NOT NULL.
 
-| Поле | Тип | Ключ |
+## Таблица 1: utilities
+
+| Ключ | Поле | Тип |
 |---|---|---|
-| id | SERIAL | PK |
-| name | VARCHAR(100) | not null |
-| description | VARCHAR(500) | |
-| status | VARCHAR(15) | not null, default 'draft' |
-| image_url | VARCHAR(255) | |
-| video_url | VARCHAR(255) | |
-| tariff_rate | NUMERIC(10,2) | |
-| consumption_norm | NUMERIC(10,3) | |
-| measurement_unit | VARCHAR(20) | |
-| created_at | TIMESTAMP | not null |
-| published_at | TIMESTAMP | nullable |
-| creator_id | INT | FK → users.id, not null |
+| PK | id | BIGINT |
+| | name | VARCHAR(100) |
+| N | description | VARCHAR(500) |
+| | status | VARCHAR(15) |
+| | image_url | VARCHAR(255) |
+| | video_url | VARCHAR(255) |
+| N | tariff_rate | NUMERIC(10,2) |
+| N | consumption_norm | NUMERIC(10,3) |
+| | measurement_unit | VARCHAR(20) |
+| | created_at | TIMESTAMP |
+| N | published_at | TIMESTAMP |
+| FK | creator_id | BIGINT |
+
+Необязательных полей ровно 4 — те, что заполняются только при публикации:
+`description`, `tariff_rate`, `consumption_norm`, `published_at`.
+`image_url`, `video_url` обязательные (по «Далее» записываются неверные
+ссылки), `measurement_unit` обязательный с `DEFAULT ''` — формат создания
+черновика (только название) не меняется.
 
 ## Таблица 2: likes
 
-| Поле | Тип | Ключ |
+| Ключ | Поле | Тип |
 |---|---|---|
-| id | SERIAL | PK |
-| user_id | INT | FK → users.id, not null |
-| communal_resource_id | INT | FK → communal_resources.id, not null |
+| PK | id | BIGINT |
+| FK,U | user_id | BIGINT |
+| FK,U | utility_id | BIGINT |
 
-Уникальный составной индекс: (user_id, communal_resource_id) — один
-пользователь не может лайкнуть одну услугу дважды.
+Уникальная пара (user_id, utility_id) — один пользователь не может
+лайкнуть одну услугу дважды.
 
 ## Таблица 3: users
 
-| Поле | Тип | Ключ |
+| Ключ | Поле | Тип |
 |---|---|---|
-| id | SERIAL | PK |
-| login | VARCHAR(50) | unique, not null |
-| password | VARCHAR(100) | not null |
-| is_moderator | BOOLEAN | not null, default false |
+| PK | id | BIGINT |
+| U | login | VARCHAR(50) |
+| | password | VARCHAR(100) |
+| | is_moderator | BOOLEAN |
 
 ## Связи
 
-- `users` (1) → `communal_resources` (*) по `creator_id` — один пользователь
-  создаёт много услуг
-- `users` (1) → `likes` (*) по `user_id`
-- `communal_resources` (1) → `likes` (*) по `communal_resource_id`
+- `users` 1 — 0..* `utilities` по `creator_id`
+- `users` 1 — 0..* `likes` по `user_id`
+- `utilities` 1 — 0..* `likes` по `utility_id`
 
-Каскадное удаление НЕ используется нигде (требование методички) — удаление
-только логическое, через поле `status`.
+Каскадное удаление не используется — удаление только логическое, через
+поле `status`.

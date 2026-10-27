@@ -1,4 +1,4 @@
-module utility-bills-backend
+module utilities-backend
 
 go 1.27.0
 
