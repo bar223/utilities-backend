@@ -272,20 +272,47 @@ const docTemplate = `{
         },
         "/utilities/feed": {
             "get": {
-                "description": "Одна опубликованная услуга с вложенным создателем. Без id — первая, с id — эта, с id и next=true — следующая. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
+                "description": "Первая опубликованная услуга с вложенным создателем — вход в ленту из панели вкладок, id не указывается. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "utilities"
                 ],
-                "summary": "Лента коммунальных услуг",
+                "summary": "Лента коммунальных услуг (без id)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UtilityFeedItem"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities/feed/{id}": {
+            "get": {
+                "description": "Опубликованная услуга по id с вложенным создателем, с next=true — следующая после неё (после последней — снова первая). Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Лента коммунальных услуг по id",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "id услуги",
                         "name": "id",
-                        "in": "query"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "boolean",
@@ -299,6 +326,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ds.UtilityFeedItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     },
                     "404": {

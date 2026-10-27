@@ -220,26 +220,29 @@
       "name": "7. GET лента",
       "request": {
         "method": "GET",
-        "description": "Без параметров (снять галочки) — первая услуга, как из панели вкладок. С id и next=true — следующая после id.",
+        "description": "Лента по id: /utilities/feed/1?next=true — следующая после id. Лента без id (как из панели вкладок): удалить из адреса «/:id?next=true», останется {{baseUrl}}/utilities/feed.",
         "url": {
-          "raw": "{{baseUrl}}/utilities/feed?id=1&next=true",
+          "raw": "{{baseUrl}}/utilities/feed/:id?next=true",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "utilities",
-            "feed"
+            "feed",
+            ":id"
           ],
           "query": [
-            {
-              "key": "id",
-              "value": "1",
-              "description": "id услуги, необязательно"
-            },
             {
               "key": "next",
               "value": "true",
               "description": "следующая после id"
+            }
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "id услуги"
             }
           ]
         }

@@ -27,8 +27,9 @@ func NewHandler(r *repository.Repository, c *config.Config, rc *redis.Client) *H
 }
 
 // RegisterHandler регистрирует 10 методов REST API под /api и Swagger UI.
-// Без авторизации доступно только чтение (список и лента, регистрация и
-// вход), методы создателя требуют JWT (WithAuthCheck).
+// Метод ленты доступен по двум адресам: без id (панель вкладок) и с id в
+// пути. Без авторизации доступно только чтение (список и лента,
+// регистрация и вход), методы создателя требуют JWT (WithAuthCheck).
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -37,6 +38,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	utilities := api.Group("/utilities")
 	utilities.GET("", h.WithOptionalAuth, h.GetUtilities)
 	utilities.GET("/feed", h.WithOptionalAuth, h.GetUtilityFeed)
+	utilities.GET("/feed/:id", h.WithOptionalAuth, h.GetUtilityFeedByID)
 	utilities.GET("/draft", h.WithAuthCheck, h.GetUtilityDraft)
 	utilities.POST("", h.WithAuthCheck, h.CreateUtility)
 	utilities.PUT("/:id", h.WithAuthCheck, h.PublishUtility)

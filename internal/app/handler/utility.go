@@ -71,24 +71,42 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 }
 
 // GetUtilityFeed godoc
-// @Summary      Лента коммунальных услуг
-// @Description  Одна опубликованная услуга с вложенным создателем. Без id — первая, с id — эта, с id и next=true — следующая. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
+// @Summary      Лента коммунальных услуг (без id)
+// @Description  Первая опубликованная услуга с вложенным создателем — вход в ленту из панели вкладок, id не указывается. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
 // @Tags         utilities
 // @Produce      json
-// @Param        id    query     int     false  "id услуги"
-// @Param        next  query     bool    false  "следующая после id"
 // @Success      200   {object}  ds.UtilityFeedItem
 // @Failure      404   {object}  errorResponse
 // @Router       /utilities/feed [get]
 func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
+	h.utilityFeed(ctx)
+}
+
+// GetUtilityFeedByID godoc
+// @Summary      Лента коммунальных услуг по id
+// @Description  Опубликованная услуга по id с вложенным создателем, с next=true — следующая после неё (после последней — снова первая). Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
+// @Tags         utilities
+// @Produce      json
+// @Param        id    path      int     true   "id услуги"
+// @Param        next  query     bool    false  "следующая после id"
+// @Success      200   {object}  ds.UtilityFeedItem
+// @Failure      400   {object}  errorResponse
+// @Failure      404   {object}  errorResponse
+// @Router       /utilities/feed/{id} [get]
+func (h *Handler) GetUtilityFeedByID(ctx *gin.Context) {
+	h.utilityFeed(ctx)
+}
+
+// utilityFeed — общий метод ленты для обоих адресов: id берётся из пути,
+// без id — первая опубликованная услуга.
+func (h *Handler) utilityFeed(ctx *gin.Context) {
 	var id uint
-	if idQuery := ctx.Query("id"); idQuery != "" {
-		parsed, err := strconv.ParseUint(idQuery, 10, 64)
-		if err != nil || parsed == 0 {
-			h.errorHandler(ctx, http.StatusBadRequest, errors.New("некорректный идентификатор услуги"))
+	if ctx.Param("id") != "" {
+		parsed, ok := h.parseUtilityID(ctx)
+		if !ok {
 			return
 		}
-		id = uint(parsed)
+		id = parsed
 	}
 	next := ctx.Query("next") == "true"
 
