@@ -29,7 +29,7 @@
                 <a class="card" href="/utilities/feed/{{ .ID }}">
                     <!-- если файла по ссылке нет, <object> без JS показывает
                          вложенную картинку по умолчанию с SSR-сервера -->
-                    <object class="card-image" data="{{ .DisplayImageURL }}" type="image/*">
+                    <object class="card-image" data="{{ .DisplayImageURL }}">
                         <img src="{{ .DefaultImageURL }}" alt="{{ .Name }}">
                     </object>
                     <div class="info">
