@@ -7,45 +7,92 @@
 
 Фронтенд — репозиторий [utility-bills-frontend](https://github.com/bar223/utility-bills-frontend).
 
-## Лабораторная работа 3 — REST API
+## Лабораторная работа 3 — веб-сервис (REST API)
 
 Ветка: `lab3-rest-api`
 
-Тема лабораторной — веб-сервис: вся бизнес-логика вынесена в REST JSON API
-под `/api`, который тестируется напрямую через Postman/Insomnia — рядом,
-без замены, продолжают работать HTML-страницы (`/`, `/utilities/feed`,
-`/utilities/draft`) из лаб 1-2.
+Тема лабораторной — веб-сервис со всей бизнес-логикой (кроме
+авторизации) для будущего SPA. Сервис отдаёт только JSON и тестируется
+через Postman — HTML-страниц и шаблонов в этой ветке нет (интерфейс
+лаб 1-2 остался в ветке `lab2-database`, новый появится во фронтенде,
+лабораторные 5-7).
+
+- ровно 10 HTTP-методов: 7 в домене услуг и 3 в домене пользователей;
+  все адреса начинаются с `/api`;
+- в теле ответа нет поля `status`/`success` — результат передаётся только
+  кодом состояния HTTP (200, 201, 204, 400, 404, 409, 500). Тело
+  успешного ответа — сам объект (или массив), тело ошибки — `{"error": "…"}`;
+- взаимодействие с БД — только через ORM (GORM);
+- записи в статусе `deleted` клиенту не отдаются;
+- статусы меняются только в одну сторону, двумя разными методами
+  создателя: PUT (`draft → published`) и DELETE (`→ deleted`);
+- системные поля (`id`, `status`, создатель, даты) с клиента не
+  принимаются — их вычисляет бэкенд;
+- пользователь-создатель зафиксирован константой через функцию-синглтон
+  `handler.CurrentUserID()` (`internal/app/handler/handler.go`);
+- коллекция Postman — `docs/lab3/postman-collection.json` (10 запросов).
 
 ### Методы API
 
-Все адреса начинаются с `/api`. Статусы меняются только в одну сторону
-(`draft → published`, `любой → deleted`) — вернуть в черновик нельзя.
-Записи в статусе `deleted` клиенту не отдаются.
+**Домен услуг** — `/api/utilities`
 
-| Метод | URL | Описание |
-|---|---|---|
-| GET | `/api/utilities` | Список опубликованных услуг, фильтр `?tariff=`. Для каждой — `isMine` (создал ли текущий пользователь) |
-| GET | `/api/utilities/feed` | Лента: первая опубликованная услуга |
-| GET | `/api/utilities/feed/:id` | Лента: услуга по id, `?next=true` — следующая (после последней — снова первая). Для каждой — `liked` (лайкнул ли текущий пользователь) |
-| GET | `/api/utilities/draft` | Черновик текущего пользователя (не более одного). `data: null`, если черновика нет |
-| GET | `/api/utilities/:id` | Подробная информация об опубликованной услуге с вложенным создателем (`creator`) |
-| POST | `/api/utilities` | Создание черновика: `multipart/form-data` — `name` (обязательно), `image`, `video` (файлы, необязательно). Файлы реально загружаются в MinIO с латинскими именами `utility-<id>-image.<ext>` / `utility-<id>-video.<ext>` |
-| PUT | `/api/utilities/:id` | Публикация: JSON `{description, tariffRate, consumptionNorm, measurementUnit}`, статус → `published` |
-| DELETE | `/api/utilities/:id` | Логическое удаление — только своей услуги |
-| POST | `/api/utilities/:id/like` | JSON `{"value": 0 или 1}` — снять/поставить лайк текущего пользователя |
-| POST | `/api/users/register` | Регистрация: JSON `{login, password}` |
-| POST | `/api/users/login` | Заглушка — авторизация появится в лабораторной 4 |
-| POST | `/api/users/logout` | Заглушка — см. выше |
+| № | Метод | URL | Тело запроса | Ответ |
+|---|---|---|---|---|
+| 1 | GET | `/api/utilities?tariff=10` | — | 200, массив опубликованных услуг с тарифом не выше `tariff` (без параметра — все). У каждой `isMine`: 1 — создатель услуги = текущий пользователь, 0 — нет; `likesCount` |
+| 2 | GET | `/api/utilities/feed?id=1&next=true` | — | 200, одна опубликованная услуга с вложенным `creator {id, login}`, `liked`: 1 — текущий пользователь лайкнул, 0 — нет. Без `id` — первая услуга (вход из панели вкладок), с `id` — эта услуга, с `id` и `next=true` — следующая (после последней — снова первая). 404 — нет такой |
+| 3 | GET | `/api/utilities/draft` | — | 200, черновик текущего пользователя (не более одного, id не указывается); 404 — черновика нет |
+| 4 | POST | `/api/utilities` | `multipart/form-data`: `name` (обязательно), `image`, `video` — файлы | 201, созданный черновик. Файлы загружаются в MinIO под латинскими именами `utility-<id>-image.<ext>` / `utility-<id>-video.<ext>`, ссылки сохраняются в `image_url` / `video_url`. 400 — не тот тип файла, 409 — черновик уже есть |
+| 5 | PUT | `/api/utilities/:id` | JSON `{description, tariffRate, consumptionNorm, measurementUnit}` | 200, опубликованная услуга (статус `draft → published`, `publishedAt` = сейчас); 404 — это не черновик текущего пользователя |
+| 6 | DELETE | `/api/utilities/:id` | — | 204 без тела, `status → deleted` (soft delete); 404 — нет такой услуги у текущего пользователя |
+| 7 | POST | `/api/utilities/:id/like` | JSON `{"value": 1}` — 1 ставит, 0 снимает лайк | 200, `{liked, likesCount}`; 404 — услуга не опубликована |
 
-Пользователь-создатель до появления авторизации зафиксирован
-функцией-синглтоном `handler.CurrentUserID()` — единственное место,
-которое изменится в лабораторной 4.
+**Домен пользователей** — `/api/users`
+
+| № | Метод | URL | Тело запроса | Ответ |
+|---|---|---|---|---|
+| 8 | POST | `/api/users/register` | JSON `{login, password}` | 201, `{id, login, isModerator}`; 409 — логин занят |
+| 9 | POST | `/api/users/login` | — | 200, заглушка — аутентификация в лабораторной 4 |
+| 10 | POST | `/api/users/logout` | — | 200, заглушка — деавторизация в лабораторной 4 |
 
 ### Таблицы БД
 
-См. раздел «ER-диаграмма» лабораторной 2 ниже — структура не менялась,
-добавилась только сериализация полей под JSON (`imageUrl`, `tariffRate`
-и т.д. вместо snake_case колонок).
+N — необязательное поле (NULL), остальные NOT NULL.
+
+**utilities** — услуги
+
+| Поле | Тип | Описание |
+|---|---|---|
+| `id` | BIGINT, PK | идентификатор |
+| `name` | VARCHAR(100) | наименование |
+| `description` | VARCHAR(500), N | краткое описание |
+| `status` | VARCHAR(15) | `draft` / `published` / `deleted` |
+| `image_url` | VARCHAR(255) | ссылка на изображение в MinIO |
+| `video_url` | VARCHAR(255) | ссылка на видео в MinIO |
+| `tariff_rate` | NUMERIC(10,2), N | тариф за единицу — поле по теме, по нему фильтр |
+| `consumption_norm` | NUMERIC(10,3), N | норматив потребления — поле по теме |
+| `measurement_unit` | VARCHAR(20) | единица измерения, `DEFAULT ''` до публикации |
+| `created_at` | TIMESTAMP | дата создания |
+| `published_at` | TIMESTAMP, N | дата формирования (публикации) |
+| `creator_id` | BIGINT, FK → users.id | создатель |
+
+**likes** — лайки, м-м «пользователь — услуга»
+
+| Поле | Тип | Описание |
+|---|---|---|
+| `id` | BIGINT, PK | идентификатор |
+| `user_id` | BIGINT, FK → users.id | кто поставил |
+| `utility_id` | BIGINT, FK → utilities.id | какой услуге; пара (`user_id`, `utility_id`) уникальна |
+
+**users** — пользователи
+
+| Поле | Тип | Описание |
+|---|---|---|
+| `id` | BIGINT, PK | идентификатор |
+| `login` | VARCHAR(50), U | логин, уникальный |
+| `password` | VARCHAR(100) | пароль (в JSON не отдаётся) |
+| `is_moderator` | BOOLEAN | признак модератора |
+
+Каскадного удаления нет, удаление услуг только логическое (`status`).
 
 ## Лабораторная работа 2 — база данных
 
@@ -168,40 +215,51 @@ go run ./cmd/utilities
 
 Связь: `MonthlyReceipt` 1 — * `ConsumptionRecord` * — 1 `CommunalResource`.
 
-## Структура проекта
+## Структура проекта (ветка lab3-rest-api)
 
 ```
-cmd/utilities/           точка входа (main.go)
-cmd/migrate/             миграции (AutoMigrate по моделям ds)
+cmd/
+  utilities/main.go          точка входа веб-сервиса
+  migrate/main.go            миграции (AutoMigrate по моделям)
+config/config.toml           хост и порт сервиса (8090)
 internal/
-  pkg/                   сборка приложения: роутер, запуск сервера
+  pkg/app.go                 сборка приложения и запуск HTTP-сервера
   app/
-    config/              конфигурация (config/config.toml)
-    dsn/                 строка подключения к PostgreSQL из .env
-    ds/                  модели: Utility, User, Like
-    handler/             обработчики HTTP-запросов
-    repository/          доступ к БД (Utility, User, Like)
-templates/               html/template-шаблоны трёх страниц
-resources/styles/        CSS
-resources/img, video/    фото и видео по умолчанию (не в MinIO)
-docs/lab2/               скриншоты, сценарий защиты, ER-спецификация
+    config/                  чтение config.toml
+    dsn/                     строка подключения к PostgreSQL из .env
+    ds/
+      utility.go             модель Utility (таблица utilities)
+      like.go                модель Like (таблица likes)
+      user.go                модель User (таблица users)
+      serializers.go         сериализаторы ответов и тел запросов
+    handler/
+      handler.go             маршруты /api, CurrentUserID(), ошибки
+      utility.go             7 методов домена услуг
+      user.go                3 метода домена пользователей
+    repository/
+      repository.go          подключение к PostgreSQL и MinIO
+      env.go                 настройки из .env
+      utility.go             запросы к utilities через GORM
+      like.go                запросы к likes
+      user.go                запросы к users
+      upload.go              загрузка файлов в MinIO
+docs/
+  lab2/                      скриншоты и ER-спецификация ЛР-2
+  lab3/                      коллекция Postman, сценарий защиты
+  diagrams/utilities.mdj     StarUML: ER-диаграмма и диаграмма классов
+docker-compose.yml           MinIO, PostgreSQL, Adminer
 ```
 
 ## Запуск
 
 ```bash
 cp .env.example .env
-docker compose up -d   # поднимает MinIO
-go run ./cmd/utilities
+docker compose up -d        # MinIO, PostgreSQL, Adminer
+go run ./cmd/migrate        # схема БД
+go run ./cmd/utilities      # веб-сервис на http://localhost:8090/api
 ```
 
-Приложение слушает `:8080`:
-
-- `/` — плитка, список опубликованных услуг, фильтр по тарифу — слайдер
-  с кнопкой «Применить» (`?tariff=`)
-- `/utilities/feed/:id` — лента, переход к следующей услуге через
-  `?next=true` (после последней — снова первая)
-- `/utilities/draft` — черновик
+Postman: **File → Import** → `docs/lab3/postman-collection.json`.
 
 ## Инфраструктура: MinIO
 
@@ -241,6 +299,8 @@ docker exec -it utilities-minio mc anonymous set public myminio/utilities
 
 Пример ссылки: `http://localhost:9000/utilities/electricity.webp`
 
-Если у услуги нет своего изображения или видео — подставляется заглушка,
-которая хранится прямо в коде (`resources/img/default-image.svg`,
-`resources/video/default-video.mp4`), а не в MinIO.
+Если у услуги нет своего изображения или видео, веб-сервис отдаёт пустую
+ссылку. На HTML-страницах ЛР-2 (ветка `lab2-database`) вместо неё
+показывается заглушка, которая хранится на SSR-сервере
+(`resources/img/default-image.svg`, `resources/video/default-video.mp4`),
+а не в MinIO; в SPA заглушки будут храниться во фронтенде.

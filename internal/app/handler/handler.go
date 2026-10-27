@@ -1,6 +1,7 @@
-// Package handler содержит обработчики HTTP-запросов домена Utility:
-// получают параметры запроса, вызывают репозиторий и передают данные в
-// html/template.
+// Package handler содержит обработчики REST API веб-сервиса: получают
+// параметры запроса, вызывают репозиторий и отдают JSON. HTML-страниц в
+// веб-сервисе нет — интерфейс появится в SPA (лабораторные 5-7), а пока
+// методы тестируются через Postman.
 package handler
 
 import (
@@ -10,20 +11,18 @@ import (
 	"utilities-backend/internal/app/repository"
 )
 
-// currentCreatorID оставлен для совместимости со старыми вызовами —
-// новый код использует функцию-синглтон CurrentUserID ниже.
-const currentCreatorID uint = 1
+// currentUserID — пользователь-создатель, зафиксированный константой до
+// появления авторизации (лабораторная 4).
+const currentUserID uint = 1
 
-// CurrentUserID — функция-синглтон: до появления авторизации (лаба 4)
-// пользователь-создатель зафиксирован одним и тем же ID во всех методах.
-// Требование методички лабораторной 3 — именно функция, а не голая
-// константа, чтобы в будущем заменить реализацию на чтение из JWT/сессии
-// в одном месте, не трогая вызывающий код.
+// CurrentUserID — функция-синглтон: во всех методах текущий пользователь
+// берётся только отсюда. В лабораторной 4 реализация заменится на чтение
+// из JWT, вызывающий код не изменится.
 func CurrentUserID() uint {
-	return currentCreatorID
+	return currentUserID
 }
 
-// Handler объединяет обработчики страниц вокруг общего репозитория.
+// Handler объединяет обработчики вокруг общего репозитория.
 type Handler struct {
 	Repository *repository.Repository
 }
@@ -33,54 +32,29 @@ func NewHandler(r *repository.Repository) *Handler {
 	return &Handler{Repository: r}
 }
 
-// RegisterHandler регистрирует маршруты домена Utility. Пути вложены под
-// /utilities — сущность явно видна в адресе, без общих названий действий
-// в одиночку (/add, /publish, /delete).
+// RegisterHandler регистрирует 10 методов REST API: 7 в домене услуг и 3
+// в домене пользователей. Каждый адрес начинается с /api.
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET("/", h.Tile)
-	router.GET("/utilities/feed", h.Feed)
-	router.GET("/utilities/feed/:id", h.Feed)
-	router.GET("/utilities/draft", h.Add)
-	router.POST("/utilities/draft", h.CreateDraft)
-	router.POST("/utilities/:id/publish", h.Publish)
-	router.POST("/utilities/:id/delete", h.Delete)
-	router.POST("/utilities/:id/like", h.Like)
-
-	router.GET("/users/register", h.RegisterPage)
-	router.POST("/users/register", h.RegisterSubmit)
-}
-
-// RegisterAPIHandler регистрирует REST JSON API лабораторной 3 — тестируется
-// через Postman/Insomnia, отдельно от HTML-страниц лаб 1-2. По требованию
-// методички каждый адрес начинается с /api.
-func (h *Handler) RegisterAPIHandler(router *gin.Engine) {
 	api := router.Group("/api")
 
-	api.GET("/utilities", h.APIListUtilities)
-	api.GET("/utilities/feed", h.APIFeed)
-	api.GET("/utilities/feed/:id", h.APIFeed)
-	api.GET("/utilities/draft", h.APIGetDraft)
-	api.GET("/utilities/:id", h.APIGetUtility)
-	api.POST("/utilities", h.APICreateUtility)
-	api.PUT("/utilities/:id", h.APIPublishUtility)
-	api.DELETE("/utilities/:id", h.APIDeleteUtility)
-	api.POST("/utilities/:id/like", h.APISetLike)
+	utilities := api.Group("/utilities")
+	utilities.GET("", h.GetUtilities)
+	utilities.GET("/feed", h.GetUtilityFeed)
+	utilities.GET("/draft", h.GetUtilityDraft)
+	utilities.POST("", h.CreateUtility)
+	utilities.PUT("/:id", h.PublishUtility)
+	utilities.DELETE("/:id", h.DeleteUtility)
+	utilities.POST("/:id/like", h.SetUtilityLike)
 
-	api.POST("/users/register", h.APIRegister)
-	api.POST("/users/login", h.APILogin)
-	api.POST("/users/logout", h.APILogout)
+	users := api.Group("/users")
+	users.POST("/register", h.RegisterUser)
+	users.POST("/login", h.LoginUser)
+	users.POST("/logout", h.LogoutUser)
 }
 
-// RegisterStatic регистрирует шаблоны и статику.
-func (h *Handler) RegisterStatic(router *gin.Engine) {
-	router.LoadHTMLGlob("templates/*")
-	router.Static("/static", "./resources")
-}
-
+// errorHandler отвечает ошибкой. Признак успеха/ошибки в тело не пишется —
+// его передаёт только код состояния HTTP (200, 201, 400, 404, 409, 500).
 func (h *Handler) errorHandler(ctx *gin.Context, statusCode int, err error) {
 	logrus.Error(err.Error())
-	ctx.JSON(statusCode, gin.H{
-		"status":      "error",
-		"description": err.Error(),
-	})
+	ctx.JSON(statusCode, gin.H{"error": err.Error()})
 }

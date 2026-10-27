@@ -22,10 +22,3 @@ func (r *Repository) CreateUser(login, password string) (*ds.User, error) {
 	}
 	return &user, nil
 }
-
-// GetUser возвращает пользователя по ID.
-func (r *Repository) GetUser(id uint) (ds.User, error) {
-	var user ds.User
-	err := r.db.Where("id = ?", id).First(&user).Error
-	return user, err
-}

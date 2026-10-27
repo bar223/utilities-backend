@@ -2,8 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
-	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -11,9 +9,13 @@ import (
 	"utilities-backend/internal/app/ds"
 )
 
-// GetUtilities — список опубликованных услуг для страницы «Плитка»,
-// отсортированный по ID. Если maxTariffRate указан, остаются только услуги
-// с тарифом не выше этого значения (фильтр по теме).
+// ErrDraftExists возвращается при попытке создать второй черновик — у
+// пользователя не более одной услуги в статусе «черновик».
+var ErrDraftExists = errors.New("у пользователя уже есть черновик")
+
+// GetUtilities — список опубликованных услуг, отсортированный по ID. Если
+// maxTariffRate указан, остаются только услуги с тарифом не выше этого
+// значения (фильтрация на бэкенде).
 func (r *Repository) GetUtilities(maxTariffRate *float64) ([]ds.Utility, error) {
 	query := r.db.Where("status = ?", ds.StatusPublished).Order("id")
 	if maxTariffRate != nil {
@@ -27,62 +29,55 @@ func (r *Repository) GetUtilities(maxTariffRate *float64) ([]ds.Utility, error) 
 	return utilities, nil
 }
 
-// GetUtilityFeedItem — услуга для страницы «Лента». БД возвращает сразу
-// одну строку (не более одного дополнительного запроса при переходе через
-// границу последней услуги) — без выборки всего списка и фильтрации
-// массивом в коде, как того требует методичка.
+// GetUtilityFeedItem — одна опубликованная услуга для ленты вместе с
+// создателем (Preload). БД возвращает сразу одну строку.
 //
-// Если next равен false, возвращается сама услуга по id (id == 0 — первая
-// опубликованная, для перехода из панели вкладок). Если next равен true —
-// следующая после неё опубликованная услуга, после последней — снова первая.
+// id == 0 — первая опубликованная услуга (переход из панели вкладок, id
+// не указывается). next == false — сама услуга по id, next == true —
+// следующая после неё, после последней — снова первая.
 func (r *Repository) GetUtilityFeedItem(id uint, next bool) (ds.Utility, error) {
 	var utility ds.Utility
+	// каждый вызов — новый запрос, чтобы условия не накапливались
+	published := func() *gorm.DB {
+		return r.db.Preload("Creator").Where("status = ?", ds.StatusPublished).Order("id")
+	}
 
 	switch {
 	case id == 0:
-		// Переход из панели вкладок — первая опубликованная услуга.
-		err := r.db.Where("status = ?", ds.StatusPublished).
-			Order("id").First(&utility).Error
+		err := published().First(&utility).Error
 		return utility, err
 
 	case next:
-		// Следующая после id услуга одним запросом.
-		err := r.db.Where("status = ? AND id > ?", ds.StatusPublished, id).
-			Order("id").First(&utility).Error
+		err := published().Where("id > ?", id).First(&utility).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// После последней услуги — зацикливаемся на первую.
-			err = r.db.Where("status = ?", ds.StatusPublished).
-				Order("id").First(&utility).Error
+			err = published().First(&utility).Error
 		}
 		return utility, err
 
 	default:
-		err := r.db.Where("status = ? AND id = ?", ds.StatusPublished, id).
-			First(&utility).Error
+		err := published().Where("id = ?", id).First(&utility).Error
 		return utility, err
 	}
 }
 
-// GetUtilityDraft — черновик текущего создателя (не более одного на
-// пользователя). Отсутствие черновика — не ошибка, возвращается nil.
-func (r *Repository) GetUtilityDraft(creatorID uint) (*ds.Utility, error) {
+// GetUtilityDraft — черновик пользователя (не более одного).
+func (r *Repository) GetUtilityDraft(creatorID uint) (ds.Utility, error) {
 	var draft ds.Utility
 	err := r.db.Where("status = ? AND creator_id = ?", ds.StatusDraft, creatorID).First(&draft).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &draft, nil
+	return draft, err
 }
 
-// CreateUtilityDraft создаёт черновик услуги по кнопке «Далее». Фото и
-// видео в лабораторной 2 не передаются на сервер и не сохраняются
-// (требование методички) — вместо них в обязательные поля image_url и
-// video_url записываются заведомо неверные ссылки на MinIO. Файлов по ним
-// нет, поэтому на страницах показываются фото и видео по умолчанию.
+// CreateUtilityDraft создаёт черновик услуги по названию. Если черновик у
+// пользователя уже есть, возвращает ErrDraftExists.
 func (r *Repository) CreateUtilityDraft(creatorID uint, name string) (*ds.Utility, error) {
+	_, err := r.GetUtilityDraft(creatorID)
+	if err == nil {
+		return nil, ErrDraftExists
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	draft := ds.Utility{
 		Name:      name,
 		Status:    ds.StatusDraft,
@@ -92,82 +87,41 @@ func (r *Repository) CreateUtilityDraft(creatorID uint, name string) (*ds.Utilit
 	if err := r.db.Create(&draft).Error; err != nil {
 		return nil, err
 	}
-
-	draft.ImageURL = missingMinioURL(draft.ID, "image.jpg")
-	draft.VideoURL = missingMinioURL(draft.ID, "video.mp4")
-	err := r.db.Model(&draft).Updates(map[string]any{
-		"image_url": draft.ImageURL,
-		"video_url": draft.VideoURL,
-	}).Error
-	if err != nil {
-		return nil, err
-	}
 	return &draft, nil
 }
 
-// missingMinioURL — ссылка на несуществующий объект в бакете MinIO
-// (латинское имя "utility-<id>-<suffix>").
-func missingMinioURL(id uint, suffix string) string {
-	return fmt.Sprintf("http://%s:%s/%s/utility-%d-%s",
-		os.Getenv("MINIO_ENDPOINT"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BUCKET"), id, suffix)
-}
-
-// PublishUtility заполняет оставшиеся поля черновика и переводит его в
-// статус «опубликован» по кнопке «Опубликовать». Статусы нельзя менять
-// с любого на любой — условие "AND status = draft" пропускает только
-// переход черновик → опубликован, вернуть в черновик нельзя.
-func (r *Repository) PublishUtility(id uint, description string, tariffRate, consumptionNorm float64, measurementUnit string) error {
-	now := time.Now()
+// PublishUtility заполняет оставшиеся поля черновика создателя и переводит
+// его в статус «опубликован». Условие status = draft пропускает только
+// переход черновик → опубликован, вернуть в черновик нельзя. Возвращает
+// обновлённую запись.
+func (r *Repository) PublishUtility(id, creatorID uint, req ds.PublishUtilityRequest) (ds.Utility, error) {
+	var utility ds.Utility
 	res := r.db.Model(&ds.Utility{}).
-		Where("id = ? AND status = ?", id, ds.StatusDraft).
+		Where("id = ? AND creator_id = ? AND status = ?", id, creatorID, ds.StatusDraft).
 		Updates(map[string]any{
-			"description":      description,
-			"tariff_rate":      tariffRate,
-			"consumption_norm": consumptionNorm,
-			"measurement_unit": measurementUnit,
+			"description":      req.Description,
+			"tariff_rate":      req.TariffRate,
+			"consumption_norm": req.ConsumptionNorm,
+			"measurement_unit": req.MeasurementUnit,
 			"status":           ds.StatusPublished,
-			"published_at":     now,
+			"published_at":     time.Now(),
 		})
 	if res.Error != nil {
-		return res.Error
+		return utility, res.Error
 	}
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return utility, gorm.ErrRecordNotFound
 	}
-	return nil
-}
 
-// DeleteUtility — логическое удаление услуги прямым SQL UPDATE, без ORM
-// (требование методички лабораторной 2).
-func (r *Repository) DeleteUtility(id uint) error {
-	return r.db.Exec("UPDATE utilities SET status = ? WHERE id = ?", ds.StatusDeleted, id).Error
-}
-
-// GetLikesCount возвращает количество лайков услуги — вычисляется по
-// таблице likes, а не хранится отдельным полем.
-func (r *Repository) GetLikesCount(utilityID uint) (int64, error) {
-	var count int64
-	err := r.db.Model(&ds.Like{}).Where("utility_id = ?", utilityID).Count(&count).Error
-	return count, err
-}
-
-// GetUtility возвращает опубликованную услугу по ID с подгруженным
-// создателем (вложенная сериализация, Preload) — для подробной выдачи
-// REST API.
-func (r *Repository) GetUtility(id uint) (ds.Utility, error) {
-	var utility ds.Utility
-	err := r.db.Preload("Creator").Where("status = ? AND id = ?", ds.StatusPublished, id).First(&utility).Error
+	err := r.db.First(&utility, id).Error
 	return utility, err
 }
 
-// DeleteUtilityOwned — логическое удаление услуги через ORM (требование
-// методички лабы 3 — "взаимодействие с БД через ORM" для всех методов
-// REST API, в отличие от лабы 2, где сырой SQL требовался специально
-// для удаления). Удаляет, только если услуга принадлежит указанному
-// создателю.
-func (r *Repository) DeleteUtilityOwned(id, creatorID uint) error {
+// DeleteUtility — логическое удаление (status = deleted) через ORM, только
+// если услуга принадлежит указанному создателю и ещё не удалена.
+func (r *Repository) DeleteUtility(id, creatorID uint) error {
 	res := r.db.Model(&ds.Utility{}).
-		Where("id = ? AND creator_id = ?", id, creatorID).
+		Where("id = ? AND creator_id = ? AND status <> ?", id, creatorID, ds.StatusDeleted).
 		Update("status", ds.StatusDeleted)
 	if res.Error != nil {
 		return res.Error
@@ -176,4 +130,20 @@ func (r *Repository) DeleteUtilityOwned(id, creatorID uint) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+// IsUtilityPublished проверяет, что услуга существует и опубликована —
+// лайкать черновики и удалённые услуги нельзя.
+func (r *Repository) IsUtilityPublished(id uint) (bool, error) {
+	var count int64
+	err := r.db.Model(&ds.Utility{}).Where("id = ? AND status = ?", id, ds.StatusPublished).Count(&count).Error
+	return count > 0, err
+}
+
+// GetLikesCount возвращает количество лайков услуги — вычисляется по
+// таблице likes, а не хранится отдельным полем.
+func (r *Repository) GetLikesCount(utilityID uint) (int64, error) {
+	var count int64
+	err := r.db.Model(&ds.Like{}).Where("utility_id = ?", utilityID).Count(&count).Error
+	return count, err
 }

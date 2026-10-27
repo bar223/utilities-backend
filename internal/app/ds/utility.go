@@ -36,27 +36,3 @@ type Utility struct {
 func (Utility) TableName() string {
 	return "utilities"
 }
-
-// FullUtilitySerializer — подробное представление услуги с вложенным
-// создателем (вложенная сериализация). Используется для GET одной услуги.
-type FullUtilitySerializer struct {
-	Utility
-	Creator User `json:"creator"`
-}
-
-// UtilityListItem — услуга в списке (плитка): добавлен признак "это моя
-// услуга" (создатель совпадает с текущим пользователем) и количество
-// лайков.
-type UtilityListItem struct {
-	Utility
-	IsMine     bool  `json:"isMine"`
-	LikesCount int64 `json:"likesCount"`
-}
-
-// UtilityFeedItem — услуга в ленте: вместо признака "моя" добавлен
-// признак "лайкнул ли текущий пользователь".
-type UtilityFeedItem struct {
-	Utility
-	Liked      bool  `json:"liked"`
-	LikesCount int64 `json:"likesCount"`
-}
