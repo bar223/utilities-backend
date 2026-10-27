@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // Изображение и видео по умолчанию хранятся прямо на SSR-сервере (не в
@@ -23,12 +23,16 @@ const sliderUnlimited = "101"
 
 // utilityView — данные услуги для шаблонов: сама запись плюс количество
 // лайков (вычисляется по таблице likes) и изображение/видео с фолбэком на
-// значения по умолчанию.
+// значения по умолчанию. Если ссылка в БД пустая, сразу берётся файл по
+// умолчанию; если ссылка есть, но файла по ней нет, шаблон переключается
+// на файл по умолчанию сам, без JavaScript (<object> и второй <source>).
 type utilityView struct {
 	ds.Utility
 	LikesCount      int64
 	DisplayImageURL string
 	DisplayVideoURL string
+	DefaultImageURL string
+	DefaultVideoURL string
 }
 
 func (h *Handler) toView(u ds.Utility) utilityView {
@@ -51,6 +55,8 @@ func (h *Handler) toView(u ds.Utility) utilityView {
 		LikesCount:      likes,
 		DisplayImageURL: imageURL,
 		DisplayVideoURL: videoURL,
+		DefaultImageURL: defaultImageURL,
+		DefaultVideoURL: defaultVideoURL,
 	}
 }
 
@@ -127,15 +133,25 @@ func (h *Handler) Add(ctx *gin.Context) {
 		return
 	}
 
+	// Фото и видео показываются сверху на обоих шагах: до «Далее» — файлы
+	// по умолчанию, после — файлы черновика (с фолбэком на те же файлы
+	// по умолчанию, так как в лабораторной 2 ссылки заведомо неверные).
+	media := utilityView{DefaultImageURL: defaultImageURL, DefaultVideoURL: defaultVideoURL,
+		DisplayImageURL: defaultImageURL, DisplayVideoURL: defaultVideoURL}
+	if draft != nil {
+		media = h.toView(*draft)
+	}
+
 	ctx.HTML(http.StatusOK, "add.html", gin.H{
 		"Draft": draft,
+		"Media": media,
 	})
 }
 
-// CreateDraft — POST /add, кнопка «Далее»: создаёт черновик по названию.
-// Фото и видео в лабораторной 2 не сохраняются (требование методички) —
-// поля выбора файла показаны для полноты интерфейса, но на сервер не
-// передаются.
+// CreateDraft — POST /utilities/draft, кнопка «Далее»: создаёт черновик
+// по названию. Фото и видео выбираются из проводника, но в лабораторной 2
+// на сервер не передаются (у полей выбора файла нет name) — в БД
+// записываются неверные ссылки, см. Repository.CreateUtilityDraft.
 func (h *Handler) CreateDraft(ctx *gin.Context) {
 	name := ctx.PostForm("name")
 

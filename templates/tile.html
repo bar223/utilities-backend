@@ -27,7 +27,11 @@
             {{ range .Utilities }}
             <div class="card-wrap">
                 <a class="card" href="/utilities/feed/{{ .ID }}">
-                    <img src="{{ .DisplayImageURL }}" alt="{{ .Name }}">
+                    <!-- если файла по ссылке нет, <object> без JS показывает
+                         вложенную картинку по умолчанию с SSR-сервера -->
+                    <object class="card-image" data="{{ .DisplayImageURL }}" type="image/*">
+                        <img src="{{ .DefaultImageURL }}" alt="{{ .Name }}">
+                    </object>
                     <div class="info">
                         <p class="name">{{ .Name }}</p>
                         <p class="tariff">{{ .TariffRate }} руб/{{ .MeasurementUnit }}</p>

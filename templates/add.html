@@ -1,3 +1,23 @@
+{{/* Фото и видео сверху, друг под другом — на обоих шагах. Выбор файла
+     из проводника — только до «Далее» (пока нет .Draft). Пока файл не выбран и не
+     сохранён, показываются видео и картинка по умолчанию. */}}
+{{ define "add-media" }}
+<div class="upload-stack">
+    <label class="upload-box">
+        <video class="upload-preview" autoplay loop muted playsinline>
+            <source src="{{ .Media.DisplayVideoURL }}">
+            <source src="{{ .Media.DefaultVideoURL }}">
+        </video>
+        {{ if not .Draft }}<input type="file" accept="video/*" title="Выбрать видео">{{ end }}
+    </label>
+    <label class="upload-box">
+        <object class="upload-preview" data="{{ .Media.DisplayImageURL }}" type="image/*">
+            <img src="{{ .Media.DefaultImageURL }}" alt="Изображение по умолчанию">
+        </object>
+        {{ if not .Draft }}<input type="file" accept="image/*" title="Выбрать изображение">{{ end }}
+    </label>
+</div>
+{{ end }}
 <!doctype html>
 <html lang="ru">
 <head>
@@ -11,6 +31,8 @@
     <main class="add-page">
         {{ if .Draft }}
         <form action="/utilities/{{ .Draft.ID }}/publish" method="post">
+            {{ template "add-media" . }}
+
             <div class="field">
                 <span>Заголовок:</span>
                 <input type="text" value="{{ .Draft.Name }}" disabled>
@@ -40,28 +62,9 @@
         </form>
         {{ else }}
         <form action="/utilities/draft" method="post">
-            <!-- Выбор файлов доступен только на этом шаге, до "Далее" —
-                 в лабораторной 2 сами файлы не сохраняются (требование
-                 методички), поля нужны только для полноты интерфейса. -->
-            <div class="upload-stack">
-                <label class="upload-box" title="Видео (не сохраняется в лабораторной 2)">
-                    <input type="file" name="video" accept="video/*">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="6" width="14" height="12" rx="2"/>
-                        <path d="M16 10l6-3v10l-6-3"/>
-                    </svg>
-                    <span>Выбрать видео</span>
-                </label>
-                <label class="upload-box" title="Изображение (не сохраняется в лабораторной 2)">
-                    <input type="file" name="image" accept="image/*">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="3"/>
-                        <circle cx="9" cy="9" r="1.5"/>
-                        <path d="M21 15l-5-5-11 11"/>
-                    </svg>
-                    <span>Выбрать изображение</span>
-                </label>
-            </div>
+            <!-- у полей выбора файла нет name: в лабораторной 2 файлы на
+                 сервер не передаются (требование методички) -->
+            {{ template "add-media" . }}
 
             <div class="field">
                 <span>Заголовок:</span>

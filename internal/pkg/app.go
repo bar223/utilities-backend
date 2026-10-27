@@ -8,8 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"utility-bills-backend/internal/app/config"
-	"utility-bills-backend/internal/app/handler"
+	"utilities-backend/internal/app/config"
+	"utilities-backend/internal/app/handler"
 )
 
 // Application — собранное приложение: конфигурация, роутер, обработчики.

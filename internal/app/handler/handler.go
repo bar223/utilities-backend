@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"utility-bills-backend/internal/app/repository"
+	"utilities-backend/internal/app/repository"
 )
 
 // currentCreatorID — создатель зафиксирован константой до появления

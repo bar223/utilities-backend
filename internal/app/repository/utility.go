@@ -2,11 +2,13 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"time"
 
 	"gorm.io/gorm"
 
-	"utility-bills-backend/internal/app/ds"
+	"utilities-backend/internal/app/ds"
 )
 
 // GetUtilities — список опубликованных услуг для страницы «Плитка»,
@@ -76,8 +78,10 @@ func (r *Repository) GetUtilityDraft(creatorID uint) (*ds.Utility, error) {
 }
 
 // CreateUtilityDraft создаёт черновик услуги по кнопке «Далее». Фото и
-// видео в лабораторной 2 не сохраняются (требование методички) —
-// принимается только название.
+// видео в лабораторной 2 не передаются на сервер и не сохраняются
+// (требование методички) — вместо них в обязательные поля image_url и
+// video_url записываются заведомо неверные ссылки на MinIO. Файлов по ним
+// нет, поэтому на страницах показываются фото и видео по умолчанию.
 func (r *Repository) CreateUtilityDraft(creatorID uint, name string) (*ds.Utility, error) {
 	draft := ds.Utility{
 		Name:      name,
@@ -88,7 +92,24 @@ func (r *Repository) CreateUtilityDraft(creatorID uint, name string) (*ds.Utilit
 	if err := r.db.Create(&draft).Error; err != nil {
 		return nil, err
 	}
+
+	draft.ImageURL = missingMinioURL(draft.ID, "image.jpg")
+	draft.VideoURL = missingMinioURL(draft.ID, "video.mp4")
+	err := r.db.Model(&draft).Updates(map[string]any{
+		"image_url": draft.ImageURL,
+		"video_url": draft.VideoURL,
+	}).Error
+	if err != nil {
+		return nil, err
+	}
 	return &draft, nil
+}
+
+// missingMinioURL — ссылка на несуществующий объект в бакете MinIO
+// (латинское имя "utility-<id>-<suffix>").
+func missingMinioURL(id uint, suffix string) string {
+	return fmt.Sprintf("http://%s:%s/%s/utility-%d-%s",
+		os.Getenv("MINIO_ENDPOINT"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BUCKET"), id, suffix)
 }
 
 // PublishUtility заполняет оставшиеся поля черновика и переводит его в

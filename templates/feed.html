@@ -10,7 +10,12 @@
 <div class="app-frame">
     <div class="feed-page">
         <div class="feed-media">
-            <video src="{{ .Utility.DisplayVideoURL }}" poster="{{ .Utility.DisplayImageURL }}" autoplay loop muted playsinline></video>
+            <!-- второй <source> — видео по умолчанию с SSR-сервера, браузер
+                 берёт его сам, если первого файла нет -->
+            <video poster="{{ .Utility.DisplayImageURL }}" autoplay loop muted playsinline>
+                <source src="{{ .Utility.DisplayVideoURL }}">
+                <source src="{{ .Utility.DefaultVideoURL }}">
+            </video>
 
             <div class="feed-side-actions">
                 <span class="feed-likes like-button">
