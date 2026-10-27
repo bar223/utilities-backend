@@ -192,14 +192,14 @@ docker exec -it utilities-minio mc anonymous set public myminio/utilities
 
 | Ресурс | Изображение | Видео |
 |---|---|---|
-| Электроэнергия | `electricity.webp` | `electricity.mp4` |
-| Отопление | `heating.webp` | `heating.mp4` |
-| Холодное водоснабжение | `cold-water.avif` | `cold-water.mp4` |
-| Газоснабжение | `gas-supply.avif` | `gas-supply.mp4` |
+| Электроэнергия | `electricity.jpg` | `electricity.mp4` |
+| Отопление | `heating.jpg` | `heating.mp4` |
+| Холодное водоснабжение | `cold-water.jpg` | `cold-water.mp4` |
+| Газоснабжение | `gas-supply.jpg` | `gas-supply.mp4` |
 | Вывоз ТКО | `waste-removal.jpg` | `waste-removal.mp4` |
-| Капитальный ремонт | `capital-repair.webp` | `capital-repair.mp4` |
+| Капитальный ремонт | `capital-repair.jpg` | `capital-repair.mp4` |
 
-Пример ссылки: `http://localhost:9000/utilities/electricity.webp`
+Пример ссылки: `http://localhost:9000/utilities/electricity.jpg`
 
 Если у услуги нет своего изображения или видео — подставляется заглушка,
 которая хранится прямо в коде (`resources/img/default-image.svg`,
