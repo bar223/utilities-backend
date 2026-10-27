@@ -3749,7 +3749,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+GET /api/utilities/feed(id, next)",
+											"text": "+GET /api/utilities/feed/{id}(next)",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5
 										},
@@ -9790,27 +9790,11 @@
 									"_parent": {
 										"$ref": "VVRJTElUSUVTAAC3"
 									},
-									"name": "GET /api/utilities/feed",
+									"name": "GET /api/utilities/feed/{id}",
 									"visibility": "public",
 									"isStatic": false,
 									"isLeaf": false,
 									"parameters": [
-										{
-											"_type": "UMLParameter",
-											"_id": "VVRJTElUSUVTAAC7",
-											"_parent": {
-												"$ref": "VVRJTElUSUVTAAC6"
-											},
-											"name": "id",
-											"visibility": "public",
-											"isStatic": false,
-											"isLeaf": false,
-											"type": "",
-											"isReadOnly": false,
-											"isOrdered": false,
-											"isUnique": false,
-											"direction": "in"
-										},
 										{
 											"_type": "UMLParameter",
 											"_id": "VVRJTElUSUVTAAC8",

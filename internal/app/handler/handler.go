@@ -33,13 +33,15 @@ func NewHandler(r *repository.Repository) *Handler {
 }
 
 // RegisterHandler регистрирует 10 методов REST API: 7 в домене услуг и 3
-// в домене пользователей. Каждый адрес начинается с /api.
+// в домене пользователей. Каждый адрес начинается с /api. Метод ленты
+// доступен по двум адресам: без id (панель вкладок) и с id в пути.
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	api := router.Group("/api")
 
 	utilities := api.Group("/utilities")
 	utilities.GET("", h.GetUtilities)
 	utilities.GET("/feed", h.GetUtilityFeed)
+	utilities.GET("/feed/:id", h.GetUtilityFeed)
 	utilities.GET("/draft", h.GetUtilityDraft)
 	utilities.POST("", h.CreateUtility)
 	utilities.PUT("/:id", h.PublishUtility)

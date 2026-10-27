@@ -64,20 +64,19 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
-// GetUtilityFeed — GET /api/utilities/feed?id=&next=: одна опубликованная
-// услуга с вложенным создателем. Без id — первая услуга (вход в ленту из
-// панели вкладок, id не указывается по методичке), с id — эта услуга,
-// с id и next=true — следующая за ней. liked = 1, если текущий
-// пользователь лайкнул услугу.
+// GetUtilityFeed — GET /api/utilities/feed и /api/utilities/feed/:id:
+// одна опубликованная услуга с вложенным создателем. Без id — первая
+// услуга (вход в ленту из панели вкладок, id не указывается по методичке),
+// с id в пути — эта услуга, с ?next=true — следующая за ней. liked = 1,
+// если текущий пользователь лайкнул услугу.
 func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
 	var id uint
-	if idQuery := ctx.Query("id"); idQuery != "" {
-		parsed, err := strconv.ParseUint(idQuery, 10, 64)
-		if err != nil || parsed == 0 {
-			h.errorHandler(ctx, http.StatusBadRequest, errors.New("некорректный идентификатор услуги"))
+	if ctx.Param("id") != "" {
+		parsed, ok := h.parseUtilityID(ctx)
+		if !ok {
 			return
 		}
-		id = uint(parsed)
+		id = parsed
 	}
 	next := ctx.Query("next") == "true"
 
