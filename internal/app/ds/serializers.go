@@ -48,10 +48,18 @@ type LikeRequest struct {
 	Value *int `json:"value" binding:"required,oneof=0 1"`
 }
 
-// RegisterRequest — тело POST регистрации.
+// RegisterRequest — тело POST регистрации и аутентификации.
 type RegisterRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+	Login    string `json:"login" example:"ivanov"`
+	Password string `json:"password" example:"secret"`
+}
+
+// LoginResponse — ответ аутентификации: JWT и его срок жизни в секундах.
+type LoginResponse struct {
+	AccessToken string `json:"accessToken"`
+	TokenType   string `json:"tokenType" example:"Bearer"`
+	ExpiresIn   int64  `json:"expiresIn" example:"3600"`
+	Login       string `json:"login" example:"ivanov"`
 }
 
 // BoolToInt переводит признак в 0/1 для JSON-ответа.

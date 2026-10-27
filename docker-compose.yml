@@ -37,6 +37,16 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    container_name: utilities-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+
   adminer:
     container_name: utilities-adminer
     image: adminer:latest
@@ -49,3 +59,4 @@ services:
 volumes:
   minio-data:
   postgres-data:
+  redis-data:

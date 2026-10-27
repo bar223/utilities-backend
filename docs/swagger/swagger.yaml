@@ -1,0 +1,500 @@
+basePath: /api
+definitions:
+  ds.LikeRequest:
+    properties:
+      value:
+        enum:
+        - 0
+        - 1
+        type: integer
+    required:
+    - value
+    type: object
+  ds.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      expiresIn:
+        example: 3600
+        type: integer
+      login:
+        example: ivanov
+        type: string
+      tokenType:
+        example: Bearer
+        type: string
+    type: object
+  ds.PublishUtilityRequest:
+    properties:
+      consumptionNorm:
+        type: number
+      description:
+        type: string
+      measurementUnit:
+        type: string
+      tariffRate:
+        type: number
+    required:
+    - consumptionNorm
+    - measurementUnit
+    - tariffRate
+    type: object
+  ds.RegisterRequest:
+    properties:
+      login:
+        example: ivanov
+        type: string
+      password:
+        example: secret
+        type: string
+    type: object
+  ds.User:
+    properties:
+      id:
+        type: integer
+      isModerator:
+        type: boolean
+      login:
+        type: string
+    type: object
+  ds.UserSerializer:
+    properties:
+      id:
+        type: integer
+      login:
+        type: string
+    type: object
+  ds.Utility:
+    properties:
+      consumptionNorm:
+        description: поле по теме
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      measurementUnit:
+        description: |-
+          Единица измерения обязательна, но формат создания черновика не
+          меняется: при создании записывается пустая строка, реальное значение
+          приходит при публикации.
+        type: string
+      name:
+        type: string
+      publishedAt:
+        description: дата формирования (публикации)
+        type: string
+      status:
+        type: string
+      tariffRate:
+        type: number
+      videoUrl:
+        type: string
+    type: object
+  ds.UtilityFeedItem:
+    properties:
+      consumptionNorm:
+        description: поле по теме
+        type: number
+      createdAt:
+        type: string
+      creator:
+        $ref: '#/definitions/ds.UserSerializer'
+      description:
+        type: string
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      liked:
+        type: integer
+      likesCount:
+        type: integer
+      measurementUnit:
+        description: |-
+          Единица измерения обязательна, но формат создания черновика не
+          меняется: при создании записывается пустая строка, реальное значение
+          приходит при публикации.
+        type: string
+      name:
+        type: string
+      publishedAt:
+        description: дата формирования (публикации)
+        type: string
+      status:
+        type: string
+      tariffRate:
+        type: number
+      videoUrl:
+        type: string
+    type: object
+  ds.UtilityLikeResponse:
+    properties:
+      liked:
+        type: integer
+      likesCount:
+        type: integer
+    type: object
+  ds.UtilityListItem:
+    properties:
+      consumptionNorm:
+        description: поле по теме
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      isMine:
+        type: integer
+      likesCount:
+        type: integer
+      measurementUnit:
+        description: |-
+          Единица измерения обязательна, но формат создания черновика не
+          меняется: при создании записывается пустая строка, реальное значение
+          приходит при публикации.
+        type: string
+      name:
+        type: string
+      publishedAt:
+        description: дата формирования (публикации)
+        type: string
+      status:
+        type: string
+      tariffRate:
+        type: number
+      videoUrl:
+        type: string
+    type: object
+  handler.errorResponse:
+    properties:
+      error:
+        example: услуга не найдена
+        type: string
+    type: object
+host: localhost:8090
+info:
+  contact: {}
+  description: 'Веб-сервис коммунальных услуг: список и лента услуг, черновик, публикация,
+    лайки, регистрация и JWT-аутентификация.'
+  title: Utilities API — квитанция по квартплате
+  version: "1.0"
+paths:
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: 'Проверяет логин и пароль и выдаёт JWT. Токен передаётся в остальных
+        запросах в заголовке Authorization: Bearer <токен>.'
+      parameters:
+      - description: логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: неверный логин или пароль
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Аутентификация
+      tags:
+      - users
+  /users/logout:
+    post:
+      description: Добавляет текущий JWT в чёрный список Redis до конца его срока
+        жизни.
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Деавторизация
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт пользователя-жильца. Пароль хранится в виде bcrypt-хэша.
+      parameters:
+      - description: логин и пароль
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "409":
+          description: логин занят
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Регистрация
+      tags:
+      - users
+  /utilities:
+    get:
+      description: Опубликованные услуги с тарифом не выше tariff. Доступно гостю;
+        с токеном isMine = 1 у услуг текущего пользователя.
+      parameters:
+      - description: тариф не выше, руб.
+        in: query
+        name: tariff
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ds.UtilityListItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Список коммунальных услуг
+      tags:
+      - utilities
+    post:
+      consumes:
+      - multipart/form-data
+      description: Создаёт черновик; создатель берётся из JWT. Файлы сохраняются в
+        MinIO под латинскими именами.
+      parameters:
+      - description: название
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: изображение
+        in: formData
+        name: image
+        type: file
+      - description: короткое видео
+        in: formData
+        name: video
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.Utility'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "409":
+          description: черновик уже есть
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Добавление услуги с изображением и видео
+      tags:
+      - utilities
+  /utilities/{id}:
+    delete:
+      parameters:
+      - description: id услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удаление услуги (soft delete)
+      tags:
+      - utilities
+    put:
+      consumes:
+      - application/json
+      description: Заполняет поля черновика текущего пользователя, статус draft →
+        published.
+      parameters:
+      - description: id черновика
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: поля услуги
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.PublishUtilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Utility'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Публикация услуги
+      tags:
+      - utilities
+  /utilities/{id}/like:
+    post:
+      consumes:
+      - application/json
+      description: 'value: 1 — поставить, 0 — снять лайк текущего пользователя.'
+      parameters:
+      - description: id услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 0 или 1
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ds.LikeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.UtilityLikeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Лайк услуги
+      tags:
+      - utilities
+  /utilities/draft:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Utility'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: черновика нет
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
+      summary: Черновик текущего пользователя
+      tags:
+      - utilities
+  /utilities/feed:
+    get:
+      description: Одна опубликованная услуга с вложенным создателем. Без id — первая,
+        с id — эта, с id и next=true — следующая. Доступно гостю; с токеном liked
+        = 1, если пользователь лайкнул услугу.
+      parameters:
+      - description: id услуги
+        in: query
+        name: id
+        type: integer
+      - description: следующая после id
+        in: query
+        name: next
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.UtilityFeedItem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Лента коммунальных услуг
+      tags:
+      - utilities
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: Введите "Bearer <токен из /users/login>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

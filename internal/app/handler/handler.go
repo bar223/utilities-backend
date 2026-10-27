@@ -1,60 +1,61 @@
 // Package handler содержит обработчики REST API веб-сервиса: получают
-// параметры запроса, вызывают репозиторий и отдают JSON. HTML-страниц в
-// веб-сервисе нет — интерфейс появится в SPA (лабораторные 5-7), а пока
-// методы тестируются через Postman.
+// параметры запроса, вызывают репозиторий и отдают JSON.
 package handler
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"utilities-backend/internal/app/config"
+	"utilities-backend/internal/app/redis"
 	"utilities-backend/internal/app/repository"
 )
 
-// currentUserID — пользователь-создатель, зафиксированный константой до
-// появления авторизации (лабораторная 4).
-const currentUserID uint = 1
-
-// CurrentUserID — функция-синглтон: во всех методах текущий пользователь
-// берётся только отсюда. В лабораторной 4 реализация заменится на чтение
-// из JWT, вызывающий код не изменится.
-func CurrentUserID() uint {
-	return currentUserID
-}
-
-// Handler объединяет обработчики вокруг общего репозитория.
+// Handler объединяет обработчики вокруг репозитория, конфигурации JWT и
+// клиента Redis (чёрный список токенов).
 type Handler struct {
 	Repository *repository.Repository
+	Config     *config.Config
+	Redis      *redis.Client
 }
 
-// NewHandler создаёт обработчик с внедрённым репозиторием.
-func NewHandler(r *repository.Repository) *Handler {
-	return &Handler{Repository: r}
+// NewHandler создаёт обработчик с внедрёнными зависимостями.
+func NewHandler(r *repository.Repository, c *config.Config, rc *redis.Client) *Handler {
+	return &Handler{Repository: r, Config: c, Redis: rc}
 }
 
-// RegisterHandler регистрирует 10 методов REST API: 7 в домене услуг и 3
-// в домене пользователей. Каждый адрес начинается с /api.
+// RegisterHandler регистрирует 10 методов REST API под /api и Swagger UI.
+// Без авторизации доступно только чтение (список и лента, регистрация и
+// вход), методы создателя требуют JWT (WithAuthCheck).
 func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	api := router.Group("/api")
 
 	utilities := api.Group("/utilities")
-	utilities.GET("", h.GetUtilities)
-	utilities.GET("/feed", h.GetUtilityFeed)
-	utilities.GET("/draft", h.GetUtilityDraft)
-	utilities.POST("", h.CreateUtility)
-	utilities.PUT("/:id", h.PublishUtility)
-	utilities.DELETE("/:id", h.DeleteUtility)
-	utilities.POST("/:id/like", h.SetUtilityLike)
+	utilities.GET("", h.WithOptionalAuth, h.GetUtilities)
+	utilities.GET("/feed", h.WithOptionalAuth, h.GetUtilityFeed)
+	utilities.GET("/draft", h.WithAuthCheck, h.GetUtilityDraft)
+	utilities.POST("", h.WithAuthCheck, h.CreateUtility)
+	utilities.PUT("/:id", h.WithAuthCheck, h.PublishUtility)
+	utilities.DELETE("/:id", h.WithAuthCheck, h.DeleteUtility)
+	utilities.POST("/:id/like", h.WithAuthCheck, h.SetUtilityLike)
 
 	users := api.Group("/users")
 	users.POST("/register", h.RegisterUser)
 	users.POST("/login", h.LoginUser)
-	users.POST("/logout", h.LogoutUser)
+	users.POST("/logout", h.WithAuthCheck, h.LogoutUser)
 }
 
-// errorHandler отвечает ошибкой. Признак успеха/ошибки в тело не пишется —
-// его передаёт только код состояния HTTP (200, 201, 400, 404, 409, 500).
+// errorResponse — тело ответа с ошибкой. Признака успеха в теле нет —
+// его передаёт только код состояния HTTP.
+type errorResponse struct {
+	Error string `json:"error" example:"услуга не найдена"`
+}
+
 func (h *Handler) errorHandler(ctx *gin.Context, statusCode int, err error) {
 	logrus.Error(err.Error())
-	ctx.JSON(statusCode, gin.H{"error": err.Error()})
+	ctx.AbortWithStatusJSON(statusCode, errorResponse{Error: err.Error()})
 }

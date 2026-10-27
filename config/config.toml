@@ -1,2 +1,11 @@
 ServiceHost = "0.0.0.0"
 ServicePort = 8090
+
+# JWT: срок жизни токена (секрет — JWT_SECRET в .env)
+[JWT]
+ExpiresIn = "1h"
+
+# Redis: чёрный список токенов после logout (адрес и пароль — в .env)
+[Redis]
+DialTimeout = "10s"
+ReadTimeout = "10s"

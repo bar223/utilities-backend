@@ -27,9 +27,15 @@ func (h *Handler) parseUtilityID(ctx *gin.Context) (uint, bool) {
 	return uint(id), true
 }
 
-// GetUtilities — GET /api/utilities?tariff=: список опубликованных услуг с
-// фильтром по тарифу (не выше указанного). isMine = 1, если создатель
-// услуги совпадает с текущим пользователем.
+// GetUtilities godoc
+// @Summary      Список коммунальных услуг
+// @Description  Опубликованные услуги с тарифом не выше tariff. Доступно гостю; с токеном isMine = 1 у услуг текущего пользователя.
+// @Tags         utilities
+// @Produce      json
+// @Param        tariff  query     number  false  "тариф не выше, руб."
+// @Success      200     {array}   ds.UtilityListItem
+// @Failure      400     {object}  errorResponse
+// @Router       /utilities [get]
 func (h *Handler) GetUtilities(ctx *gin.Context) {
 	var maxTariffRate *float64
 	if tariffQuery := ctx.Query("tariff"); tariffQuery != "" {
@@ -56,7 +62,7 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 		}
 		items = append(items, ds.UtilityListItem{
 			Utility:    u,
-			IsMine:     ds.BoolToInt(u.CreatorID == CurrentUserID()),
+			IsMine:     ds.BoolToInt(u.CreatorID == currentUserID(ctx)),
 			LikesCount: likes,
 		})
 	}
@@ -64,11 +70,16 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
-// GetUtilityFeed — GET /api/utilities/feed?id=&next=: одна опубликованная
-// услуга с вложенным создателем. Без id — первая услуга (вход в ленту из
-// панели вкладок, id не указывается по методичке), с id — эта услуга,
-// с id и next=true — следующая за ней. liked = 1, если текущий
-// пользователь лайкнул услугу.
+// GetUtilityFeed godoc
+// @Summary      Лента коммунальных услуг
+// @Description  Одна опубликованная услуга с вложенным создателем. Без id — первая, с id — эта, с id и next=true — следующая. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
+// @Tags         utilities
+// @Produce      json
+// @Param        id    query     int     false  "id услуги"
+// @Param        next  query     bool    false  "следующая после id"
+// @Success      200   {object}  ds.UtilityFeedItem
+// @Failure      404   {object}  errorResponse
+// @Router       /utilities/feed [get]
 func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
 	var id uint
 	if idQuery := ctx.Query("id"); idQuery != "" {
@@ -91,7 +102,7 @@ func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
 		return
 	}
 
-	liked, err := h.Repository.IsLikedByUser(CurrentUserID(), utility.ID)
+	liked, err := h.Repository.IsLikedByUser(currentUserID(ctx), utility.ID)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -110,10 +121,17 @@ func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
 	})
 }
 
-// GetUtilityDraft — GET /api/utilities/draft: черновик текущего
-// пользователя (не более одного), id не указывается. Нет черновика — 404.
+// GetUtilityDraft godoc
+// @Summary      Черновик текущего пользователя
+// @Tags         utilities
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  ds.Utility
+// @Failure      401  {object}  errorResponse
+// @Failure      404  {object}  errorResponse  "черновика нет"
+// @Router       /utilities/draft [get]
 func (h *Handler) GetUtilityDraft(ctx *gin.Context) {
-	draft, err := h.Repository.GetUtilityDraft(CurrentUserID())
+	draft, err := h.Repository.GetUtilityDraft(currentUserID(ctx))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			h.errorHandler(ctx, http.StatusNotFound, errors.New("черновика нет"))
@@ -125,10 +143,21 @@ func (h *Handler) GetUtilityDraft(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, draft)
 }
 
-// CreateUtility — POST /api/utilities (multipart/form-data): создаёт
-// черновик по названию (name) и загружает файлы image и video в MinIO.
-// Имена файлов генерируются на латинице, ссылки сохраняются в image_url и
-// video_url. Второй черновик создать нельзя — 409.
+// CreateUtility godoc
+// @Summary      Добавление услуги с изображением и видео
+// @Description  Создаёт черновик; создатель берётся из JWT. Файлы сохраняются в MinIO под латинскими именами.
+// @Tags         utilities
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        name   formData  string  true   "название"
+// @Param        image  formData  file    false  "изображение"
+// @Param        video  formData  file    false  "короткое видео"
+// @Success      201    {object}  ds.Utility
+// @Failure      400    {object}  errorResponse
+// @Failure      401    {object}  errorResponse
+// @Failure      409    {object}  errorResponse  "черновик уже есть"
+// @Router       /utilities [post]
 func (h *Handler) CreateUtility(ctx *gin.Context) {
 	if err := ctx.Request.ParseMultipartForm(maxUploadSize); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
@@ -159,7 +188,7 @@ func (h *Handler) CreateUtility(ctx *gin.Context) {
 		files[field] = header
 	}
 
-	draft, err := h.Repository.CreateUtilityDraft(CurrentUserID(), name)
+	draft, err := h.Repository.CreateUtilityDraft(currentUserID(ctx), name)
 	if err != nil {
 		if errors.Is(err, repository.ErrDraftExists) {
 			h.errorHandler(ctx, http.StatusConflict, err)
@@ -185,9 +214,20 @@ func (h *Handler) CreateUtility(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, draft)
 }
 
-// PublishUtility — PUT /api/utilities/:id: заполняет поля черновика
-// текущего пользователя и меняет статус на «опубликован». Вернуть в
-// черновик нельзя; не черновик или чужая услуга — 404.
+// PublishUtility godoc
+// @Summary      Публикация услуги
+// @Description  Заполняет поля черновика текущего пользователя, статус draft → published.
+// @Tags         utilities
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int                       true  "id черновика"
+// @Param        body  body      ds.PublishUtilityRequest  true  "поля услуги"
+// @Success      200   {object}  ds.Utility
+// @Failure      400   {object}  errorResponse
+// @Failure      401   {object}  errorResponse
+// @Failure      404   {object}  errorResponse
+// @Router       /utilities/{id} [put]
 func (h *Handler) PublishUtility(ctx *gin.Context) {
 	id, ok := h.parseUtilityID(ctx)
 	if !ok {
@@ -200,7 +240,7 @@ func (h *Handler) PublishUtility(ctx *gin.Context) {
 		return
 	}
 
-	utility, err := h.Repository.PublishUtility(id, CurrentUserID(), req)
+	utility, err := h.Repository.PublishUtility(id, currentUserID(ctx), req)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			h.errorHandler(ctx, http.StatusNotFound, errors.New("черновик не найден"))
@@ -213,15 +253,22 @@ func (h *Handler) PublishUtility(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utility)
 }
 
-// DeleteUtility — DELETE /api/utilities/:id: логическое удаление (soft
-// delete) только услуги текущего пользователя. Успех — 204 без тела.
+// DeleteUtility godoc
+// @Summary      Удаление услуги (soft delete)
+// @Tags         utilities
+// @Security     BearerAuth
+// @Param        id   path  int  true  "id услуги"
+// @Success      204
+// @Failure      401  {object}  errorResponse
+// @Failure      404  {object}  errorResponse
+// @Router       /utilities/{id} [delete]
 func (h *Handler) DeleteUtility(ctx *gin.Context) {
 	id, ok := h.parseUtilityID(ctx)
 	if !ok {
 		return
 	}
 
-	if err := h.Repository.DeleteUtility(id, CurrentUserID()); err != nil {
+	if err := h.Repository.DeleteUtility(id, currentUserID(ctx)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			h.errorHandler(ctx, http.StatusNotFound, errors.New("услуга не найдена или принадлежит другому пользователю"))
 			return
@@ -233,8 +280,20 @@ func (h *Handler) DeleteUtility(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-// SetUtilityLike — POST /api/utilities/:id/like: JSON {"value": 0|1} —
-// снять или поставить лайк текущего пользователя на опубликованной услуге.
+// SetUtilityLike godoc
+// @Summary      Лайк услуги
+// @Description  value: 1 — поставить, 0 — снять лайк текущего пользователя.
+// @Tags         utilities
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int             true  "id услуги"
+// @Param        body  body      ds.LikeRequest  true  "0 или 1"
+// @Success      200   {object}  ds.UtilityLikeResponse
+// @Failure      400   {object}  errorResponse
+// @Failure      401   {object}  errorResponse
+// @Failure      404   {object}  errorResponse
+// @Router       /utilities/{id}/like [post]
 func (h *Handler) SetUtilityLike(ctx *gin.Context) {
 	id, ok := h.parseUtilityID(ctx)
 	if !ok {
@@ -257,7 +316,7 @@ func (h *Handler) SetUtilityLike(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.SetLike(CurrentUserID(), id, *req.Value); err != nil {
+	if err := h.Repository.SetLike(currentUserID(ctx), id, *req.Value); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}

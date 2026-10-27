@@ -1,0 +1,323 @@
+{
+  "info": {
+    "name": "Utilities — ЛР-4 REST API + JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8090/api"
+    },
+    {
+      "key": "draftId",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. POST регистрация",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"newuser\",\n  \"password\": \"secret\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "2. POST аутентификация",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/users/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"newuser\",\n  \"password\": \"secret\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    pm.collectionVariables.set('token', pm.response.json().accessToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. GET список услуг с фильтром",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/utilities?tariff=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities"
+          ],
+          "query": [
+            {
+              "key": "tariff",
+              "value": "10",
+              "description": "тариф не выше, руб."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. POST добавить услугу с картинкой и видео",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    pm.collectionVariables.set('draftId', pm.response.json().id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/utilities",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "name",
+              "value": "Домофон",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "video",
+              "type": "file",
+              "src": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. GET черновик",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/utilities/draft",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities",
+            "draft"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. PUT опубликовать услугу",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/utilities/{{draftId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities",
+            "{{draftId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Обслуживание домофона подъезда\",\n  \"tariffRate\": 45,\n  \"consumptionNorm\": 1,\n  \"measurementUnit\": \"кв.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "7. GET лента",
+      "request": {
+        "method": "GET",
+        "description": "Без параметров (снять галочки) — первая услуга, как из панели вкладок. С id и next=true — следующая после id.",
+        "url": {
+          "raw": "{{baseUrl}}/utilities/feed?id=1&next=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities",
+            "feed"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "1",
+              "description": "id услуги, необязательно"
+            },
+            {
+              "key": "next",
+              "value": "true",
+              "description": "следующая после id"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "8. POST лайк",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/utilities/{{draftId}}/like",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities",
+            "{{draftId}}",
+            "like"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"value\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "9. DELETE удалить услугу",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/utilities/{{draftId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "utilities",
+            "{{draftId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "10. POST деавторизация",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/users/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "logout"
+          ]
+        }
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  }
+}

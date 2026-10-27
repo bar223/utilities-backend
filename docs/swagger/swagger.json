@@ -1,0 +1,739 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Веб-сервис коммунальных услуг: список и лента услуг, черновик, публикация, лайки, регистрация и JWT-аутентификация.",
+        "title": "Utilities API — квитанция по квартплате",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8090",
+    "basePath": "/api",
+    "paths": {
+        "/users/login": {
+            "post": {
+                "description": "Проверяет логин и пароль и выдаёт JWT. Токен передаётся в остальных запросах в заголовке Authorization: Bearer \u003cтокен\u003e.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Аутентификация",
+                "parameters": [
+                    {
+                        "description": "логин и пароль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "неверный логин или пароль",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/logout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет текущий JWT в чёрный список Redis до конца его срока жизни.",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Деавторизация",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "Создаёт пользователя-жильца. Пароль хранится в виде bcrypt-хэша.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Регистрация",
+                "parameters": [
+                    {
+                        "description": "логин и пароль",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ds.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "логин занят",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities": {
+            "get": {
+                "description": "Опубликованные услуги с тарифом не выше tariff. Доступно гостю; с токеном isMine = 1 у услуг текущего пользователя.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Список коммунальных услуг",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "тариф не выше, руб.",
+                        "name": "tariff",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ds.UtilityListItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Создаёт черновик; создатель берётся из JWT. Файлы сохраняются в MinIO под латинскими именами.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Добавление услуги с изображением и видео",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "название",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "изображение",
+                        "name": "image",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "короткое видео",
+                        "name": "video",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Utility"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "черновик уже есть",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities/draft": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Черновик текущего пользователя",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Utility"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "черновика нет",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities/feed": {
+            "get": {
+                "description": "Одна опубликованная услуга с вложенным создателем. Без id — первая, с id — эта, с id и next=true — следующая. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Лента коммунальных услуг",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id услуги",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "следующая после id",
+                        "name": "next",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UtilityFeedItem"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Заполняет поля черновика текущего пользователя, статус draft → published.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Публикация услуги",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id черновика",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "поля услуги",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.PublishUtilityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Utility"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Удаление услуги (soft delete)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utilities/{id}/like": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "value: 1 — поставить, 0 — снять лайк текущего пользователя.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Лайк услуги",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "0 или 1",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.LikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UtilityLikeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ds.LikeRequest": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1
+                    ]
+                }
+            }
+        },
+        "ds.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "expiresIn": {
+                    "type": "integer",
+                    "example": 3600
+                },
+                "login": {
+                    "type": "string",
+                    "example": "ivanov"
+                },
+                "tokenType": {
+                    "type": "string",
+                    "example": "Bearer"
+                }
+            }
+        },
+        "ds.PublishUtilityRequest": {
+            "type": "object",
+            "required": [
+                "consumptionNorm",
+                "measurementUnit",
+                "tariffRate"
+            ],
+            "properties": {
+                "consumptionNorm": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "measurementUnit": {
+                    "type": "string"
+                },
+                "tariffRate": {
+                    "type": "number"
+                }
+            }
+        },
+        "ds.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string",
+                    "example": "ivanov"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secret"
+                }
+            }
+        },
+        "ds.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "isModerator": {
+                    "type": "boolean"
+                },
+                "login": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.UserSerializer": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.Utility": {
+            "type": "object",
+            "properties": {
+                "consumptionNorm": {
+                    "description": "поле по теме",
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "measurementUnit": {
+                    "description": "Единица измерения обязательна, но формат создания черновика не\nменяется: при создании записывается пустая строка, реальное значение\nприходит при публикации.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publishedAt": {
+                    "description": "дата формирования (публикации)",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tariffRate": {
+                    "type": "number"
+                },
+                "videoUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.UtilityFeedItem": {
+            "type": "object",
+            "properties": {
+                "consumptionNorm": {
+                    "description": "поле по теме",
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "creator": {
+                    "$ref": "#/definitions/ds.UserSerializer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "liked": {
+                    "type": "integer"
+                },
+                "likesCount": {
+                    "type": "integer"
+                },
+                "measurementUnit": {
+                    "description": "Единица измерения обязательна, но формат создания черновика не\nменяется: при создании записывается пустая строка, реальное значение\nприходит при публикации.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publishedAt": {
+                    "description": "дата формирования (публикации)",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tariffRate": {
+                    "type": "number"
+                },
+                "videoUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.UtilityLikeResponse": {
+            "type": "object",
+            "properties": {
+                "liked": {
+                    "type": "integer"
+                },
+                "likesCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UtilityListItem": {
+            "type": "object",
+            "properties": {
+                "consumptionNorm": {
+                    "description": "поле по теме",
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "isMine": {
+                    "type": "integer"
+                },
+                "likesCount": {
+                    "type": "integer"
+                },
+                "measurementUnit": {
+                    "description": "Единица измерения обязательна, но формат создания черновика не\nменяется: при создании записывается пустая строка, реальное значение\nприходит при публикации.",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publishedAt": {
+                    "description": "дата формирования (публикации)",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tariffRate": {
+                    "type": "number"
+                },
+                "videoUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.errorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "услуга не найдена"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Введите \"Bearer \u003cтокен из /users/login\u003e\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

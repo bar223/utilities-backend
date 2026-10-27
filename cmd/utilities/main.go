@@ -4,16 +4,30 @@
 package main
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
+	_ "utilities-backend/docs/swagger"
 	"utilities-backend/internal/app/config"
 	"utilities-backend/internal/app/dsn"
 	"utilities-backend/internal/app/handler"
+	"utilities-backend/internal/app/redis"
 	"utilities-backend/internal/app/repository"
 	"utilities-backend/internal/pkg"
 )
 
+// @title           Utilities API — квитанция по квартплате
+// @version         1.0
+// @description     Веб-сервис коммунальных услуг: список и лента услуг, черновик, публикация, лайки, регистрация и JWT-аутентификация.
+// @host            localhost:8090
+// @BasePath        /api
+// @schemes         http
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
+// @description                 Введите "Bearer <токен из /users/login>"
 func main() {
 	logrus.Info("Application start!")
 
@@ -29,7 +43,12 @@ func main() {
 		logrus.Fatalf("error initializing repository: %v", err)
 	}
 
-	h := handler.NewHandler(repo)
+	redisClient, err := redis.New(context.Background(), conf.Redis)
+	if err != nil {
+		logrus.Fatalf("error connecting to redis: %v", err)
+	}
+
+	h := handler.NewHandler(repo, conf, redisClient)
 
 	application := pkg.NewApp(conf, router, h)
 	application.RunApp()

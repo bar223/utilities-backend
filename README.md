@@ -7,6 +7,52 @@
 
 Фронтенд — репозиторий [utility-bills-frontend](https://github.com/bar223/utility-bills-frontend).
 
+## Лабораторная работа 4 — авторизация, Swagger
+
+Ветка: `lab4-auth`
+
+- аутентификация по JWT (HS256, срок жизни — `config/config.toml`,
+  секрет — `JWT_SECRET` в `.env`); пароли хранятся bcrypt-хэшем;
+- деавторизация — токен попадает в чёрный список Redis
+  (`utilities.jwt.<токен>`) до конца своего срока жизни;
+- создатель услуги больше не константа: функция-синглтон ЛР-3 заменена
+  на пользователя из токена (`currentUserID(ctx)`, middleware
+  `WithAuthCheck`), он же подставляется в `creator_id` при создании;
+- без авторизации доступно только чтение: список и лента услуг
+  (`WithOptionalAuth` — с токеном считаются `isMine`/`liked`, без — 0),
+  а также регистрация и вход. Методы создателя без токена или с отозванным
+  токеном — **401**;
+- Swagger UI — http://localhost:8090/swagger/index.html (кнопка
+  Authorize → `Bearer <токен>`), описание генерируется из комментариев:
+  `go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/utilities/main.go -o docs/swagger`;
+- коллекция Postman — `docs/lab4/postman-collection.json`: запрос
+  «2. POST аутентификация» сам сохраняет токен в переменную `token`,
+  остальные запросы отправляют его в заголовке `Authorization`.
+
+| Метод | URL | Доступ |
+|---|---|---|
+| GET | `/api/utilities?tariff=` | гость и пользователь |
+| GET | `/api/utilities/feed?id=&next=` | гость и пользователь |
+| GET | `/api/utilities/draft` | только с JWT |
+| POST | `/api/utilities` | только с JWT |
+| PUT | `/api/utilities/{id}` | только с JWT, свой черновик |
+| DELETE | `/api/utilities/{id}` | только с JWT, своя услуга |
+| POST | `/api/utilities/{id}/like` | только с JWT |
+| POST | `/api/users/register` | все |
+| POST | `/api/users/login` | все → `{accessToken, tokenType, expiresIn, login}` |
+| POST | `/api/users/logout` | только с JWT → 204 |
+
+Пользователи, созданные до ЛР-4, хранили пароль открытым текстом и войти
+не смогут — зарегистрируйте их заново.
+
+Redis поднимается в `docker-compose.yml` (контейнер `utilities-redis`,
+пароль — `REDIS_PASSWORD`). Просмотр чёрного списка:
+
+```bash
+docker exec -it utilities-redis redis-cli -a password keys "utilities.*"
+docker exec -it utilities-redis redis-cli -a password ttl "utilities.jwt.<токен>"
+```
+
 ## Лабораторная работа 3 — веб-сервис (REST API)
 
 Ветка: `lab3-rest-api`
@@ -215,7 +261,7 @@ go run ./cmd/utilities
 
 Связь: `MonthlyReceipt` 1 — * `ConsumptionRecord` * — 1 `CommunalResource`.
 
-## Структура проекта (ветка lab3-rest-api)
+## Структура проекта (ветка lab4-auth)
 
 ```
 cmd/
@@ -232,10 +278,13 @@ internal/
       like.go                модель Like (таблица likes)
       user.go                модель User (таблица users)
       serializers.go         сериализаторы ответов и тел запросов
+      jwt.go                 содержимое JWT (userId, isModerator)
     handler/
-      handler.go             маршруты /api, CurrentUserID(), ошибки
+      handler.go             маршруты /api и /swagger, ошибки
+      middleware.go          JWT: WithAuthCheck, WithOptionalAuth
       utility.go             7 методов домена услуг
       user.go                3 метода домена пользователей
+    redis/redis.go           чёрный список JWT
     repository/
       repository.go          подключение к PostgreSQL и MinIO
       env.go                 настройки из .env
@@ -245,7 +294,9 @@ internal/
       upload.go              загрузка файлов в MinIO
 docs/
   lab2/                      скриншоты и ER-спецификация ЛР-2
-  lab3/                      коллекция Postman, сценарий защиты
+  lab3/                      коллекция Postman ЛР-3, сценарий защиты
+  lab4/                      коллекция Postman ЛР-4, сценарий защиты, ТЗ
+  swagger/                   сгенерированный Swagger (swag init)
   diagrams/utilities.mdj     StarUML: ER-диаграмма и диаграмма классов
 docker-compose.yml           MinIO, PostgreSQL, Adminer
 ```
@@ -254,7 +305,7 @@ docker-compose.yml           MinIO, PostgreSQL, Adminer
 
 ```bash
 cp .env.example .env
-docker compose up -d        # MinIO, PostgreSQL, Adminer
+docker compose up -d        # MinIO, PostgreSQL, Adminer, Redis
 go run ./cmd/migrate        # схема БД
 go run ./cmd/utilities      # веб-сервис на http://localhost:8090/api
 ```
