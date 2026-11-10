@@ -13,8 +13,8 @@ import (
 // Изображение и видео по умолчанию хранятся прямо на SSR-сервере (не в
 // MinIO) и подставляются, если у услуги нет своего файла.
 const (
-	defaultImageURL = "/static/img/default-image.webp"
-	defaultVideoURL = "/static/video/default-video.mp4"
+	defaultImageURL = "/static/img/default-image.webp?v=2"
+	defaultVideoURL = "/static/video/default-video.mp4?v=2"
 )
 
 // sliderUnlimited — крайнее положение слайдера фильтра на плитке,
