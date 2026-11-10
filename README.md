@@ -1,5 +1,10 @@
 # Utilities — backend
 
+Медиа из предоставленной папки `pics` включены в Git: `assets/demo`.
+После запуска контейнеров и миграции загрузите их командой
+`powershell -ExecutionPolicy Bypass -File .\scripts\load-demo-media.ps1`.
+Команда обновляет ссылки шести карточек без сброса данных.
+
 Учебный проект по дисциплине **«Разработка Интернет Приложений» (РИП), 2026**.
 
 Тема варианта — **«Квитанция по квартплате»**. Предметная область: начисления за
@@ -192,14 +197,14 @@ docker exec -it utilities-minio mc anonymous set public myminio/utilities
 
 | Ресурс | Изображение | Видео |
 |---|---|---|
-| Электроэнергия | `electricity.jpg` | `electricity.mp4` |
-| Отопление | `heating.jpg` | `heating.mp4` |
-| Холодное водоснабжение | `cold-water.jpg` | `cold-water.mp4` |
-| Газоснабжение | `gas-supply.jpg` | `gas-supply.mp4` |
+| Электроэнергия | `electricity.webp` | `electricity.mp4` |
+| Отопление | `heating.webp` | `heating.mp4` |
+| Холодное водоснабжение | `cold-water.avif` | `cold-water.mp4` |
+| Газоснабжение | `gas-supply.avif` | `gas-supply.mp4` |
 | Вывоз ТКО | `waste-removal.jpg` | `waste-removal.mp4` |
-| Капитальный ремонт | `capital-repair.jpg` | `capital-repair.mp4` |
+| Капитальный ремонт | `capital-repair.webp` | `capital-repair.mp4` |
 
-Пример ссылки: `http://localhost:9000/utilities/electricity.jpg`
+Пример ссылки: `http://localhost:9000/utilities/electricity.webp`
 
 Если у услуги нет своего изображения или видео — подставляется заглушка,
 которая хранится прямо в коде (`resources/img/default-image.svg`,
