@@ -4527,7 +4527,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAABn"
                                                                                         },
-                                                                               "points":  "132:115;283:184",
+                                                                               "points":  "132:115;132:194;282:194",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "VVRJTElUSUVTAAFS"
@@ -4636,7 +4636,7 @@
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAAFo"
                                                                                                  },
-                                                                               "lineStyle":  1
+                                                                               "lineStyle":  0
                                                                            },
                                                                            {
                                                                                "_type":  "UMLInterfaceRealizationView",
@@ -4734,7 +4734,7 @@
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAAFt"
                                                                                                  },
-                                                                               "lineStyle":  1
+                                                                               "lineStyle":  0
                                                                            },
                                                                            {
                                                                                "_type":  "UMLDependencyView",
@@ -6666,7 +6666,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAAB0"
                                                                                         },
-                                                                               "points":  "347:115;305:176",
+                                                                               "points":  "347:115;347:150;300:150;300:176",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "interface-fix-f78611c05a434efc913b5bafb751cc24"
@@ -6766,7 +6766,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAACB"
                                                                                         },
-                                                                               "points":  "562:115;317:184",
+                                                                               "points":  "562:115;562:194;318:194",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "interface-fix-5301b5c34f0142688171289965da3985"
@@ -6866,7 +6866,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAACO"
                                                                                         },
-                                                                               "points":  "777:115;737:176",
+                                                                               "points":  "777:115;777:150;730:150;730:176",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "interface-fix-0c9e88a07ec045e98ef0d80815e69aea"
