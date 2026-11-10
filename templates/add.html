@@ -4,7 +4,7 @@
 {{ define "add-media" }}
 <div class="upload-stack">
     <label class="upload-box">
-        <video class="upload-preview" autoplay loop muted playsinline>
+        <video class="upload-preview" poster="{{ .Media.DefaultImageURL }}" controls autoplay loop muted playsinline>
             <source src="{{ .Media.DisplayVideoURL }}">
             <source src="{{ .Media.DefaultVideoURL }}">
         </video>

@@ -13,7 +13,7 @@ import (
 // Изображение и видео по умолчанию хранятся прямо на SSR-сервере (не в
 // MinIO) и подставляются, если у услуги нет своего файла.
 const (
-	defaultImageURL = "/static/img/default-image.svg"
+	defaultImageURL = "/static/img/default-image.webp"
 	defaultVideoURL = "/static/video/default-video.mp4"
 )
 
