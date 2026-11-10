@@ -20,8 +20,8 @@ U — уникальный, N — необязательный (NULL). Без N 
 | N | tariff_rate | NUMERIC(10,2) |
 | N | consumption_norm | NUMERIC(10,3) |
 | | measurement_unit | VARCHAR(20) |
-| | created_at | TIMESTAMP |
-| N | published_at | TIMESTAMP |
+| | created_at | TIMESTAMPTZ |
+| N | published_at | TIMESTAMPTZ |
 | FK | creator_id | BIGINT |
 
 Необязательных полей ровно 4 — те, что заполняются только при публикации:
@@ -35,8 +35,8 @@ U — уникальный, N — необязательный (NULL). Без N 
 | Ключ | Поле | Тип |
 |---|---|---|
 | PK | id | BIGINT |
-| FK,U | user_id | BIGINT |
-| FK,U | utility_id | BIGINT |
+| FK | user_id | BIGINT |
+| FK | utility_id | BIGINT |
 
 Уникальная пара (user_id, utility_id) — один пользователь не может
 лайкнуть одну услугу дважды.
@@ -58,3 +58,7 @@ U — уникальный, N — необязательный (NULL). Без N 
 
 Каскадное удаление не используется — удаление только логическое, через
 поле `status`.
+
+TIMESTAMPTZ — TIMESTAMP WITH TIME ZONE, как в PostgreSQL после GORM AutoMigrate.
+Отметка U у отдельных user_id и utility_id не ставится: уникален составной индекс idx_user_utility (user_id, utility_id).
+Связи неидентифицирующие: у likes собственный PK id; внешние ключи не входят в PK.
