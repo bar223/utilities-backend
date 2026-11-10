@@ -287,9 +287,12 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
       summary: Список коммунальных услуг
       tags:
       - utilities
+      x-optionalAuth: true
     post:
       consumes:
       - multipart/form-data
@@ -477,9 +480,12 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
       summary: Лента коммунальных услуг (без id)
       tags:
       - utilities
+      x-optionalAuth: true
   /utilities/feed/{id}:
     get:
       description: Опубликованная услуга по id с вложенным создателем, с next=true
@@ -510,9 +516,12 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/handler.errorResponse'
+      security:
+      - BearerAuth: []
       summary: Лента коммунальных услуг по id
       tags:
       - utilities
+      x-optionalAuth: true
 schemes:
 - http
 securityDefinitions:

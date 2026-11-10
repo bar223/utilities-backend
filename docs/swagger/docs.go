@@ -134,6 +134,11 @@ const docTemplate = `{
         },
         "/utilities": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Опубликованные услуги с тарифом не выше tariff. Доступно гостю; с токеном isMine = 1 у услуг текущего пользователя.",
                 "produces": [
                     "application/json"
@@ -166,7 +171,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
-                }
+                },
+                "x-optionalAuth": true
             },
             "post": {
                 "security": [
@@ -272,6 +278,11 @@ const docTemplate = `{
         },
         "/utilities/feed": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Первая опубликованная услуга с вложенным создателем — вход в ленту из панели вкладок, id не указывается. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
                 "produces": [
                     "application/json"
@@ -293,11 +304,17 @@ const docTemplate = `{
                             "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
-                }
+                },
+                "x-optionalAuth": true
             }
         },
         "/utilities/feed/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Опубликованная услуга по id с вложенным создателем, с next=true — следующая после неё (после последней — снова первая). Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.",
                 "produces": [
                     "application/json"
@@ -340,7 +357,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
-                }
+                },
+                "x-optionalAuth": true
             }
         },
         "/utilities/{id}": {

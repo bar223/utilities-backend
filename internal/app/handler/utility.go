@@ -30,6 +30,8 @@ func (h *Handler) parseUtilityID(ctx *gin.Context) (uint, bool) {
 
 // GetUtilities godoc
 // @Summary      Список коммунальных услуг
+// @Security     BearerAuth
+// @x-optionalAuth true
 // @Description  Опубликованные услуги с тарифом не выше tariff. Доступно гостю; с токеном isMine = 1 у услуг текущего пользователя.
 // @Tags         utilities
 // @Produce      json
@@ -73,6 +75,8 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 
 // GetUtilityFeed godoc
 // @Summary      Лента коммунальных услуг (без id)
+// @Security     BearerAuth
+// @x-optionalAuth true
 // @Description  Первая опубликованная услуга с вложенным создателем — вход в ленту из панели вкладок, id не указывается. Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
 // @Tags         utilities
 // @Produce      json
@@ -85,6 +89,8 @@ func (h *Handler) GetUtilityFeed(ctx *gin.Context) {
 
 // GetUtilityFeedByID godoc
 // @Summary      Лента коммунальных услуг по id
+// @Security     BearerAuth
+// @x-optionalAuth true
 // @Description  Опубликованная услуга по id с вложенным создателем, с next=true — следующая после неё (после последней — снова первая). Доступно гостю; с токеном liked = 1, если пользователь лайкнул услугу.
 // @Tags         utilities
 // @Produce      json

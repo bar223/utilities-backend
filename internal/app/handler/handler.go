@@ -31,7 +31,7 @@ func NewHandler(r *repository.Repository, c *config.Config, rc *redis.Client) *H
 // пути. Без авторизации доступно только чтение (список и лента,
 // регистрация и вход), методы создателя требуют JWT (WithAuthCheck).
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.InstanceName("utilities")))
 
 	api := router.Group("/api")
 
