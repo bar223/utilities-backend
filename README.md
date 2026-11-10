@@ -355,3 +355,7 @@ docker exec -it utilities-minio mc anonymous set public myminio/utilities
 показывается заглушка, которая хранится на SSR-сервере
 (`resources/img/default-image.svg`, `resources/video/default-video.mp4`),
 а не в MinIO; в SPA заглушки будут храниться во фронтенде.
+
+### Локальные порты хранилищ
+
+Внешние порты PostgreSQL и Redis задаются в .env: DB_PORT и REDIS_PORT. По умолчанию 5433 и 6379. При конфликте с WSL в текущей рабочей копии используются 5434 и 6380. В Adminer сервер остаётся postgres; внутренняя сеть Docker не меняется.

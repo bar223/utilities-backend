@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"math"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -40,7 +41,7 @@ func (h *Handler) GetUtilities(ctx *gin.Context) {
 	var maxTariffRate *float64
 	if tariffQuery := ctx.Query("tariff"); tariffQuery != "" {
 		parsed, err := strconv.ParseFloat(tariffQuery, 64)
-		if err != nil {
+		if err != nil || math.IsNaN(parsed) || math.IsInf(parsed, 0) {
 			h.errorHandler(ctx, http.StatusBadRequest, errors.New("параметр tariff должен быть числом"))
 			return
 		}

@@ -36,8 +36,9 @@ func (h *Handler) parseToken(ctx *gin.Context) (string, *ds.JWTClaims, error) {
 	claims := &ds.JWTClaims{}
 	_, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {
 		return []byte(h.Config.JWT.Secret), nil
-	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
-	if err != nil {
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+		jwt.WithExpirationRequired(), jwt.WithIssuer("utilities-backend"), jwt.WithIssuedAt())
+	if err != nil || claims.UserID == 0 {
 		return "", nil, errUnauthorized
 	}
 
