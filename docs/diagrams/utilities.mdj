@@ -746,6 +746,25 @@
                                                                                "headNameLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAABc"
                                                                                                  }
+                                                                           },
+                                                                           {
+                                                                               "_type":  "UMLNoteView",
+                                                                               "_id":  "er-composite-unique-note",
+                                                                               "_parent":  {
+                                                                                               "$ref":  "VVRJTElUSUVTAAAD"
+                                                                                           },
+                                                                               "left":  20,
+                                                                               "top":  265,
+                                                                               "width":  630,
+                                                                               "height":  65,
+                                                                               "visible":  true,
+                                                                               "font":  "Arial;12;0",
+                                                                               "fontColor":  "#000000",
+                                                                               "lineColor":  "#000000",
+                                                                               "fillColor":  "#ffffff",
+                                                                               "showShadow":  false,
+                                                                               "wordWrap":  true,
+                                                                               "text":  "likes: UNIQUE (user_id, utility_id) — уникальна пара, а не каждое поле отдельно.\nTIMESTAMPTZ = TIMESTAMP WITH TIME ZONE. N — допускается NULL (ровно 4 поля).\nСвязи неидентифицирующие: FK не входят в PK. Удаление услуг — через status."
                                                                            }
                                                                        ]
                                                     },
@@ -771,7 +790,8 @@
                                                                                                            },
                                                                                                "reference":  {
                                                                                                                  "$ref":  "VVRJTElUSUVTAAAE"
-                                                                                                             }
+                                                                                                             },
+                                                                                               "cardinality":  "1"
                                                                                            },
                                                                                   "end2":  {
                                                                                                "_type":  "ERDRelationshipEnd",
@@ -783,7 +803,8 @@
                                                                                                                  "$ref":  "VVRJTElUSUVTAAA4"
                                                                                                              },
                                                                                                "cardinality":  "0..*"
-                                                                                           }
+                                                                                           },
+                                                                                  "identifying":  false
                                                                               }
                                                                           ],
                                                         "columns":  [
@@ -888,7 +909,7 @@
                                                                                             "$ref":  "VVRJTElUSUVTAAAE"
                                                                                         },
                                                                             "name":  "created_at",
-                                                                            "type":  "TIMESTAMP",
+                                                                            "type":  "TIMESTAMPTZ",
                                                                             "length":  0
                                                                         },
                                                                         {
@@ -898,7 +919,7 @@
                                                                                             "$ref":  "VVRJTElUSUVTAAAE"
                                                                                         },
                                                                             "name":  "published_at",
-                                                                            "type":  "TIMESTAMP",
+                                                                            "type":  "TIMESTAMPTZ",
                                                                             "length":  0,
                                                                             "nullable":  true
                                                                         },
@@ -937,7 +958,8 @@
                                                                                                            },
                                                                                                "reference":  {
                                                                                                                  "$ref":  "VVRJTElUSUVTAAAm"
-                                                                                                             }
+                                                                                                             },
+                                                                                               "cardinality":  "1"
                                                                                            },
                                                                                   "end2":  {
                                                                                                "_type":  "ERDRelationshipEnd",
@@ -949,7 +971,8 @@
                                                                                                                  "$ref":  "VVRJTElUSUVTAAAE"
                                                                                                              },
                                                                                                "cardinality":  "0..*"
-                                                                                           }
+                                                                                           },
+                                                                                  "identifying":  false
                                                                               },
                                                                               {
                                                                                   "_type":  "ERDRelationship",
@@ -965,7 +988,8 @@
                                                                                                            },
                                                                                                "reference":  {
                                                                                                                  "$ref":  "VVRJTElUSUVTAAAm"
-                                                                                                             }
+                                                                                                             },
+                                                                                               "cardinality":  "1"
                                                                                            },
                                                                                   "end2":  {
                                                                                                "_type":  "ERDRelationshipEnd",
@@ -977,7 +1001,8 @@
                                                                                                                  "$ref":  "VVRJTElUSUVTAAA4"
                                                                                                              },
                                                                                                "cardinality":  "0..*"
-                                                                                           }
+                                                                                           },
+                                                                                  "identifying":  false
                                                                               }
                                                                           ],
                                                         "columns":  [
@@ -1054,7 +1079,8 @@
                                                                             "type":  "BIGINT",
                                                                             "length":  0,
                                                                             "foreignKey":  true,
-                                                                            "unique":  true
+                                                                            "unique":  false,
+                                                                            "documentation":  "Part of composite unique index idx_user_utility (user_id, utility_id); not unique individually."
                                                                         },
                                                                         {
                                                                             "_type":  "ERDColumn",
@@ -1066,7 +1092,8 @@
                                                                             "type":  "BIGINT",
                                                                             "length":  0,
                                                                             "foreignKey":  true,
-                                                                            "unique":  true
+                                                                            "unique":  false,
+                                                                            "documentation":  "Part of composite unique index idx_user_utility (user_id, utility_id); not unique individually."
                                                                         }
                                                                     ]
                                                     }
@@ -2023,7 +2050,7 @@
                                                                                                                          "parentStyle":  true,
                                                                                                                          "left":  261,
                                                                                                                          "top":  220,
-                                                                                                                         "width":  78,
+                                                                                                                         "width":  79,
                                                                                                                          "height":  13,
                                                                                                                          "text":  "API utilities",
                                                                                                                          "wordWrap":  true
@@ -2062,7 +2089,7 @@
                                                                                                     "parentStyle":  true,
                                                                                                     "left":  256,
                                                                                                     "top":  213,
-                                                                                                    "width":  88,
+                                                                                                    "width":  89,
                                                                                                     "height":  25,
                                                                                                     "stereotypeLabel":  {
                                                                                                                             "$ref":  "VVRJTElUSUVTAACd"
@@ -2148,6 +2175,7 @@
                                                                                             ],
                                                                                "font":  "Arial;13;0",
                                                                                "parentStyle":  false,
+                                                                               "showShadow":  false,
                                                                                "containerChangeable":  true,
                                                                                "left":  256,
                                                                                "top":  176,
@@ -2171,8 +2199,7 @@
                                                                                                         },
                                                                                "templateParameterCompartment":  {
                                                                                                                     "$ref":  "VVRJTElUSUVTAACk"
-                                                                                                                },
-                                                                               "showShadow":  false
+                                                                                                                }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLInterfaceView",
@@ -2219,7 +2246,7 @@
                                                                                                                          "parentStyle":  true,
                                                                                                                          "left":  691,
                                                                                                                          "top":  220,
-                                                                                                                         "width":  78,
+                                                                                                                         "width":  79,
                                                                                                                          "height":  13,
                                                                                                                          "text":  "API users",
                                                                                                                          "wordWrap":  true
@@ -2258,7 +2285,7 @@
                                                                                                     "parentStyle":  true,
                                                                                                     "left":  686,
                                                                                                     "top":  213,
-                                                                                                    "width":  88,
+                                                                                                    "width":  89,
                                                                                                     "height":  25,
                                                                                                     "stereotypeLabel":  {
                                                                                                                             "$ref":  "VVRJTElUSUVTAACo"
@@ -2344,6 +2371,7 @@
                                                                                             ],
                                                                                "font":  "Arial;13;0",
                                                                                "parentStyle":  false,
+                                                                               "showShadow":  false,
                                                                                "containerChangeable":  true,
                                                                                "left":  686,
                                                                                "top":  176,
@@ -2367,8 +2395,7 @@
                                                                                                         },
                                                                                "templateParameterCompartment":  {
                                                                                                                     "$ref":  "VVRJTElUSUVTAACv"
-                                                                                                                },
-                                                                               "showShadow":  false
+                                                                                                                }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLPackageView",
@@ -4459,6 +4486,7 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFQ"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
                                                                                                     "left":  132,
@@ -4469,8 +4497,7 @@
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFR"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4481,6 +4508,7 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFQ"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
                                                                                                     "left":  97,
@@ -4493,8 +4521,7 @@
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFR"
                                                                                                                  },
                                                                                                     "edgePosition":  1,
-                                                                                                    "text":  "«use»",
-                                                                                                    "visible":  false
+                                                                                                    "text":  "«use»"
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4505,6 +4532,7 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFQ"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
                                                                                                     "left":  132,
@@ -4515,8 +4543,7 @@
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFR"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -4527,7 +4554,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAABn"
                                                                                         },
-                                                                               "points":  "132:115;132:194;282:194",
+                                                                               "points":  "132:115;132:194;281.5:194",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "VVRJTElUSUVTAAFS"
@@ -4537,8 +4564,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAAFU"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLInterfaceRealizationView",
@@ -4559,18 +4585,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFk"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  295,
-                                                                                                    "top":  245,
+                                                                                                    "left":  429,
+                                                                                                    "top":  203,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFl"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4581,18 +4607,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFk"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  280,
-                                                                                                    "top":  243,
+                                                                                                    "left":  429,
+                                                                                                    "top":  218,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  30,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFl"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4603,18 +4629,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFk"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  324,
-                                                                                                    "top":  248,
+                                                                                                    "left":  430,
+                                                                                                    "top":  173,
                                                                                                     "height":  13,
                                                                                                     "alpha":  -1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFl"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -4625,7 +4651,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAADK"
                                                                                         },
-                                                                               "points":  "430:295;430:194;318:194",
+                                                                               "points":  "430:295;430:194;318.5:194",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "VVRJTElUSUVTAAFm"
@@ -4635,8 +4661,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAAFo"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLInterfaceRealizationView",
@@ -4657,18 +4682,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFp"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  737,
-                                                                                                    "top":  239,
+                                                                                                    "left":  849,
+                                                                                                    "top":  203,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFq"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4679,18 +4704,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFp"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  722,
-                                                                                                    "top":  235,
+                                                                                                    "left":  849,
+                                                                                                    "top":  218,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  30,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFq"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -4701,18 +4726,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFp"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  766,
-                                                                                                    "top":  246,
+                                                                                                    "left":  850,
+                                                                                                    "top":  173,
                                                                                                     "height":  13,
                                                                                                     "alpha":  -1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "VVRJTElUSUVTAAFq"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -4723,7 +4748,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAADl"
                                                                                         },
-                                                                               "points":  "850:295;850:194;748:194",
+                                                                               "points":  "850:295;850:194;748.5:194",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "VVRJTElUSUVTAAFr"
@@ -4733,8 +4758,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "VVRJTElUSUVTAAFt"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLDependencyView",
@@ -6298,288 +6322,6 @@
                                                                                                              }
                                                                            },
                                                                            {
-                                                                               "_type":  "UMLAssociationView",
-                                                                               "_id":  "AAAAAAGhfMPHz0b3HpM=",
-                                                                               "_parent":  {
-                                                                                               "$ref":  "VVRJTElUSUVTAABe"
-                                                                                           },
-                                                                               "model":  {
-                                                                                             "$ref":  "AAAAAAGhfMPHzkbzR/o="
-                                                                                         },
-                                                                               "subViews":  [
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b4wIE=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkbzR/o="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  425,
-                                                                                                    "top":  130,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  1.5707963267948966,
-                                                                                                    "distance":  15,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  1
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b5QMM=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkbzR/o="
-                                                                                                              },
-                                                                                                    "visible":  null,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  419,
-                                                                                                    "top":  116,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  1.5707963267948966,
-                                                                                                    "distance":  30,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  1
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b6GLE=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkbzR/o="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  438,
-                                                                                                    "top":  157,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  -1.5707963267948966,
-                                                                                                    "distance":  15,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  1
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b7nbQ=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkb0DLQ="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  377,
-                                                                                                    "top":  154,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  0.5235987755982988,
-                                                                                                    "distance":  30,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  2
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b8mfk=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkb0DLQ="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  374,
-                                                                                                    "top":  141,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  0.7853981633974483,
-                                                                                                    "distance":  40,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  2
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b9Q4w=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkb0DLQ="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  385,
-                                                                                                    "top":  180,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  -0.5235987755982988,
-                                                                                                    "distance":  25,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 },
-                                                                                                    "edgePosition":  2
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b++Ds=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHz0b14Oo="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  473,
-                                                                                                    "top":  107,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  -0.5235987755982988,
-                                                                                                    "distance":  30,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 }
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0b/ZKo=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHz0b14Oo="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  465,
-                                                                                                    "top":  96,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  -0.7853981633974483,
-                                                                                                    "distance":  40,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 }
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "EdgeLabelView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0cAP9s=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHz0b14Oo="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  false,
-                                                                                                    "left":  488,
-                                                                                                    "top":  130,
-                                                                                                    "height":  13,
-                                                                                                    "alpha":  0.5235987755982988,
-                                                                                                    "distance":  25,
-                                                                                                    "hostEdge":  {
-                                                                                                                     "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                 }
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "UMLQualifierCompartmentView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0cB5M4=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHzkb0DLQ="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  true,
-                                                                                                    "width":  10,
-                                                                                                    "height":  10
-                                                                                                },
-                                                                                                {
-                                                                                                    "_type":  "UMLQualifierCompartmentView",
-                                                                                                    "_id":  "AAAAAAGhfMPHz0cCruQ=",
-                                                                                                    "_parent":  {
-                                                                                                                    "$ref":  "AAAAAAGhfMPHz0b3HpM="
-                                                                                                                },
-                                                                                                    "model":  {
-                                                                                                                  "$ref":  "AAAAAAGhfMPHz0b14Oo="
-                                                                                                              },
-                                                                                                    "visible":  false,
-                                                                                                    "font":  "Arial;13;0",
-                                                                                                    "parentStyle":  true,
-                                                                                                    "width":  10,
-                                                                                                    "height":  10
-                                                                                                }
-                                                                                            ],
-                                                                               "font":  "Arial;13;0",
-                                                                               "parentStyle":  false,
-                                                                               "head":  {
-                                                                                            "$ref":  "VVRJTElUSUVTAACB"
-                                                                                        },
-                                                                               "tail":  {
-                                                                                            "$ref":  "VVRJTElUSUVTAACb"
-                                                                                        },
-                                                                               "lineStyle":  1,
-                                                                               "points":  "361:185;503:116",
-                                                                               "showVisibility":  true,
-                                                                               "nameLabel":  {
-                                                                                                 "$ref":  "AAAAAAGhfMPHz0b4wIE="
-                                                                                             },
-                                                                               "stereotypeLabel":  {
-                                                                                                       "$ref":  "AAAAAAGhfMPHz0b5QMM="
-                                                                                                   },
-                                                                               "propertyLabel":  {
-                                                                                                     "$ref":  "AAAAAAGhfMPHz0b6GLE="
-                                                                                                 },
-                                                                               "showEndOrder":  "hide",
-                                                                               "tailRoleNameLabel":  {
-                                                                                                         "$ref":  "AAAAAAGhfMPHz0b7nbQ="
-                                                                                                     },
-                                                                               "tailPropertyLabel":  {
-                                                                                                         "$ref":  "AAAAAAGhfMPHz0b8mfk="
-                                                                                                     },
-                                                                               "tailMultiplicityLabel":  {
-                                                                                                             "$ref":  "AAAAAAGhfMPHz0b9Q4w="
-                                                                                                         },
-                                                                               "headRoleNameLabel":  {
-                                                                                                         "$ref":  "AAAAAAGhfMPHz0b++Ds="
-                                                                                                     },
-                                                                               "headPropertyLabel":  {
-                                                                                                         "$ref":  "AAAAAAGhfMPHz0b/ZKo="
-                                                                                                     },
-                                                                               "headMultiplicityLabel":  {
-                                                                                                             "$ref":  "AAAAAAGhfMPHz0cAP9s="
-                                                                                                         },
-                                                                               "tailQualifiersCompartment":  {
-                                                                                                                 "$ref":  "AAAAAAGhfMPHz0cB5M4="
-                                                                                                             },
-                                                                               "headQualifiersCompartment":  {
-                                                                                                                 "$ref":  "AAAAAAGhfMPHz0cCruQ="
-                                                                                                             }
-                                                                           },
-                                                                           {
                                                                                "_type":  "UMLDependencyView",
                                                                                "_id":  "interface-fix-87b8b0fd87d549a3aea524b7f77ea717",
                                                                                "_parent":  {
@@ -6598,18 +6340,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFV"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  173,
+                                                                                                    "left":  322,
+                                                                                                    "top":  159,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-87b8b0fd87d549a3aea524b7f77ea717"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6620,10 +6362,11 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFV"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  97,
-                                                                                                    "top":  170,
+                                                                                                    "left":  323,
+                                                                                                    "top":  161,
                                                                                                     "width":  35.5595703125,
                                                                                                     "height":  13,
                                                                                                     "alpha":  2.3847576043933394,
@@ -6632,8 +6375,7 @@
                                                                                                                      "$ref":  "interface-fix-87b8b0fd87d549a3aea524b7f77ea717"
                                                                                                                  },
                                                                                                     "edgePosition":  1,
-                                                                                                    "text":  "«use»",
-                                                                                                    "visible":  false
+                                                                                                    "text":  "«use»"
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6644,18 +6386,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFV"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  203,
+                                                                                                    "left":  323,
+                                                                                                    "top":  129,
                                                                                                     "height":  13,
                                                                                                     "alpha":  -1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-87b8b0fd87d549a3aea524b7f77ea717"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -6676,8 +6418,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "interface-fix-6ad14de7f9d547b28d19fb84f50a5fa9"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLDependencyView",
@@ -6698,18 +6439,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFa"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  173,
+                                                                                                    "left":  435,
+                                                                                                    "top":  169,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-5143e16fcd8d4fe993be912e4ef2115a"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6720,10 +6461,11 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFa"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  97,
-                                                                                                    "top":  170,
+                                                                                                    "left":  436,
+                                                                                                    "top":  171,
                                                                                                     "width":  35.5595703125,
                                                                                                     "height":  13,
                                                                                                     "alpha":  2.3847576043933394,
@@ -6732,8 +6474,7 @@
                                                                                                                      "$ref":  "interface-fix-5143e16fcd8d4fe993be912e4ef2115a"
                                                                                                                  },
                                                                                                     "edgePosition":  1,
-                                                                                                    "text":  "«use»",
-                                                                                                    "visible":  false
+                                                                                                    "text":  "«use»"
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6744,18 +6485,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFa"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  203,
+                                                                                                    "left":  436,
+                                                                                                    "top":  139,
                                                                                                     "height":  13,
                                                                                                     "alpha":  -1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-5143e16fcd8d4fe993be912e4ef2115a"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -6766,7 +6507,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAACB"
                                                                                         },
-                                                                               "points":  "562:115;562:160;310:160;310:178",
+                                                                               "points":  "562:115;562:160;310:160;310:176",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "interface-fix-5301b5c34f0142688171289965da3985"
@@ -6776,8 +6517,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "interface-fix-a29d45a87aa440088d8db82abe09d1a2"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            },
                                                                            {
                                                                                "_type":  "UMLDependencyView",
@@ -6798,18 +6538,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFf"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  173,
+                                                                                                    "left":  752,
+                                                                                                    "top":  159,
                                                                                                     "height":  13,
                                                                                                     "alpha":  1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-b5e794716ca14a7791b57ab3a2a728d8"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6820,10 +6560,11 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFf"
                                                                                                               },
+                                                                                                    "visible":  null,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  97,
-                                                                                                    "top":  170,
+                                                                                                    "left":  753,
+                                                                                                    "top":  161,
                                                                                                     "width":  35.5595703125,
                                                                                                     "height":  13,
                                                                                                     "alpha":  2.3847576043933394,
@@ -6832,8 +6573,7 @@
                                                                                                                      "$ref":  "interface-fix-b5e794716ca14a7791b57ab3a2a728d8"
                                                                                                                  },
                                                                                                     "edgePosition":  1,
-                                                                                                    "text":  "«use»",
-                                                                                                    "visible":  false
+                                                                                                    "text":  "«use»"
                                                                                                 },
                                                                                                 {
                                                                                                     "_type":  "EdgeLabelView",
@@ -6844,18 +6584,18 @@
                                                                                                     "model":  {
                                                                                                                   "$ref":  "VVRJTElUSUVTAAFf"
                                                                                                               },
+                                                                                                    "visible":  false,
                                                                                                     "font":  "Arial;13;0",
                                                                                                     "parentStyle":  false,
-                                                                                                    "left":  132,
-                                                                                                    "top":  203,
+                                                                                                    "left":  753,
+                                                                                                    "top":  129,
                                                                                                     "height":  13,
                                                                                                     "alpha":  -1.5707963267948966,
                                                                                                     "distance":  15,
                                                                                                     "hostEdge":  {
                                                                                                                      "$ref":  "interface-fix-b5e794716ca14a7791b57ab3a2a728d8"
                                                                                                                  },
-                                                                                                    "edgePosition":  1,
-                                                                                                    "visible":  false
+                                                                                                    "edgePosition":  1
                                                                                                 }
                                                                                             ],
                                                                                "font":  "Arial;13;0",
@@ -6876,8 +6616,7 @@
                                                                                                    },
                                                                                "propertyLabel":  {
                                                                                                      "$ref":  "interface-fix-da5f3ff649ff4564965c122ba8385543"
-                                                                                                 },
-                                                                               "lineStyle":  0
+                                                                                                 }
                                                                            }
                                                                        ]
                                                     },
@@ -7753,7 +7492,7 @@
                                                                                                                                                                              "left":  35,
                                                                                                                                                                              "top":  47,
                                                                                                                                                                              "width":  161,
-                                                                                                                                                                             "height":  26,
+                                                                                                                                                                             "height":  13,
                                                                                                                                                                              "text":  "Фронтенд (жилец)",
                                                                                                                                                                              "wordWrap":  true
                                                                                                                                                                          },
@@ -7881,7 +7620,7 @@
                                                                                                                                                                              "left":  255,
                                                                                                                                                                              "top":  47,
                                                                                                                                                                              "width":  161,
-                                                                                                                                                                             "height":  26,
+                                                                                                                                                                             "height":  13,
                                                                                                                                                                              "text":  ": Домен users",
                                                                                                                                                                              "wordWrap":  true
                                                                                                                                                                          },
@@ -8009,7 +7748,7 @@
                                                                                                                                                                              "left":  475,
                                                                                                                                                                              "top":  47,
                                                                                                                                                                              "width":  191,
-                                                                                                                                                                             "height":  26,
+                                                                                                                                                                             "height":  13,
                                                                                                                                                                              "text":  ": Домен utilities",
                                                                                                                                                                              "wordWrap":  true
                                                                                                                                                                          },
@@ -8114,7 +7853,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  112,
+                                                                                                                                                        "left":  109,
                                                                                                                                                         "top":  89,
                                                                                                                                                         "width":  222.79638671875,
                                                                                                                                                         "height":  13,
@@ -8138,7 +7877,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  225,
+                                                                                                                                                        "left":  222,
                                                                                                                                                         "top":  79,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8160,7 +7899,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  225,
+                                                                                                                                                        "left":  222,
                                                                                                                                                         "top":  114,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8230,7 +7969,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  198,
+                                                                                                                                                        "left":  195,
                                                                                                                                                         "top":  144,
                                                                                                                                                         "width":  57.5478515625,
                                                                                                                                                         "height":  13,
@@ -8254,7 +7993,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  224,
+                                                                                                                                                        "left":  221,
                                                                                                                                                         "top":  155,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8276,7 +8015,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  225,
+                                                                                                                                                        "left":  222,
                                                                                                                                                         "top":  120,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8346,7 +8085,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  260,
+                                                                                                                                                        "left":  257,
                                                                                                                                                         "top":  165,
                                                                                                                                                         "width":  161.97314453125,
                                                                                                                                                         "height":  13,
@@ -8370,7 +8109,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  155,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8392,7 +8131,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  190,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8462,7 +8201,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  251,
+                                                                                                                                                        "left":  248,
                                                                                                                                                         "top":  220,
                                                                                                                                                         "width":  184.0439453125,
                                                                                                                                                         "height":  13,
@@ -8486,7 +8225,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  231,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8508,7 +8247,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  196,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8578,7 +8317,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  213,
+                                                                                                                                                        "left":  210,
                                                                                                                                                         "top":  241,
                                                                                                                                                         "width":  255.01708984375,
                                                                                                                                                         "height":  13,
@@ -8602,7 +8341,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  231,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8624,7 +8363,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  266,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8694,7 +8433,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  272,
+                                                                                                                                                        "left":  269,
                                                                                                                                                         "top":  296,
                                                                                                                                                         "width":  143.39990234375,
                                                                                                                                                         "height":  13,
@@ -8718,7 +8457,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  307,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8740,7 +8479,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  272,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8810,7 +8549,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  256,
+                                                                                                                                                        "left":  253,
                                                                                                                                                         "top":  317,
                                                                                                                                                         "width":  169.3173828125,
                                                                                                                                                         "height":  13,
@@ -8834,7 +8573,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  307,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8856,7 +8595,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  342,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -8926,7 +8665,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  275,
+                                                                                                                                                        "left":  272,
                                                                                                                                                         "top":  372,
                                                                                                                                                         "width":  137.17919921875,
                                                                                                                                                         "height":  13,
@@ -8950,7 +8689,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  383,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -8972,7 +8711,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  348,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9042,7 +8781,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  88,
+                                                                                                                                                        "left":  85,
                                                                                                                                                         "top":  393,
                                                                                                                                                         "width":  505.54638671875,
                                                                                                                                                         "height":  13,
@@ -9066,7 +8805,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  383,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9088,7 +8827,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  418,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9158,7 +8897,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  250,
+                                                                                                                                                        "left":  247,
                                                                                                                                                         "top":  448,
                                                                                                                                                         "width":  186.11328125,
                                                                                                                                                         "height":  13,
@@ -9182,7 +8921,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  459,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9204,7 +8943,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  424,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9274,7 +9013,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  251,
+                                                                                                                                                        "left":  248,
                                                                                                                                                         "top":  469,
                                                                                                                                                         "width":  178.7626953125,
                                                                                                                                                         "height":  13,
@@ -9298,7 +9037,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  459,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9320,7 +9059,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  494,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9390,7 +9129,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  250,
+                                                                                                                                                        "left":  247,
                                                                                                                                                         "top":  524,
                                                                                                                                                         "width":  186.33544921875,
                                                                                                                                                         "height":  13,
@@ -9414,7 +9153,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  535,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9436,7 +9175,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  500,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9506,7 +9245,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  233,
+                                                                                                                                                        "left":  230,
                                                                                                                                                         "top":  545,
                                                                                                                                                         "width":  214.91259765625,
                                                                                                                                                         "height":  13,
@@ -9530,7 +9269,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  535,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9552,7 +9291,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  570,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9622,7 +9361,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  264,
+                                                                                                                                                        "left":  261,
                                                                                                                                                         "top":  600,
                                                                                                                                                         "width":  159.478515625,
                                                                                                                                                         "height":  13,
@@ -9646,7 +9385,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  611,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9668,7 +9407,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  576,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9738,7 +9477,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  207,
+                                                                                                                                                        "left":  204,
                                                                                                                                                         "top":  621,
                                                                                                                                                         "width":  267.62353515625,
                                                                                                                                                         "height":  13,
@@ -9762,7 +9501,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  611,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9784,7 +9523,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  646,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
@@ -9854,7 +9593,7 @@
                                                                                                                                                                   },
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  270,
+                                                                                                                                                        "left":  267,
                                                                                                                                                         "top":  676,
                                                                                                                                                         "width":  146.25634765625,
                                                                                                                                                         "height":  13,
@@ -9878,7 +9617,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  341,
+                                                                                                                                                        "left":  338,
                                                                                                                                                         "top":  687,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  1.5707963267948966,
@@ -9900,7 +9639,7 @@
                                                                                                                                                         "visible":  false,
                                                                                                                                                         "font":  "Arial;13;0",
                                                                                                                                                         "parentStyle":  false,
-                                                                                                                                                        "left":  342,
+                                                                                                                                                        "left":  339,
                                                                                                                                                         "top":  652,
                                                                                                                                                         "height":  13,
                                                                                                                                                         "alpha":  -1.5707963267948966,
