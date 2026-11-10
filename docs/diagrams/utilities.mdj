@@ -6766,7 +6766,7 @@
                                                                                "tail":  {
                                                                                             "$ref":  "VVRJTElUSUVTAACB"
                                                                                         },
-                                                                               "points":  "562:115;562:194;318:194",
+                                                                               "points":  "562:115;562:160;310:160;310:178",
                                                                                "showVisibility":  true,
                                                                                "nameLabel":  {
                                                                                                  "$ref":  "interface-fix-5301b5c34f0142688171289965da3985"
