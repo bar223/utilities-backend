@@ -612,17 +612,6 @@ const docTemplate = `{
                 }
             }
         },
-        "ds.UserSerializer": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "login": {
-                    "type": "string"
-                }
-            }
-        },
         "ds.Utility": {
             "type": "object",
             "properties": {
@@ -673,9 +662,6 @@ const docTemplate = `{
                 },
                 "createdAt": {
                     "type": "string"
-                },
-                "creator": {
-                    "$ref": "#/definitions/ds.UserSerializer"
                 },
                 "description": {
                     "type": "string"

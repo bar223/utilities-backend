@@ -3,28 +3,19 @@
     "name": "Utilities — ЛР-3 REST API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8090/api"
-    },
-    {
-      "key": "draftId",
-      "value": ""
-    }
-  ],
   "item": [
     {
       "name": "1. GET список услуг с фильтром",
       "request": {
         "method": "GET",
         "url": {
-          "raw": "{{baseUrl}}/utilities?tariff=10",
+          "raw": "http://localhost:8090/api/utilities?tariff=10",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
-            "utilities"
+            "api",
+            "utilities?tariff=10"
           ],
           "query": [
             {
@@ -45,7 +36,6 @@
             "type": "text/javascript",
             "exec": [
               "if (pm.response.code === 201) {",
-              "    pm.collectionVariables.set('draftId', pm.response.json().id);",
               "}"
             ]
           }
@@ -54,11 +44,12 @@
       "request": {
         "method": "POST",
         "url": {
-          "raw": "{{baseUrl}}/utilities",
+          "raw": "http://localhost:8090/api/utilities",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities"
           ]
         },
@@ -89,11 +80,12 @@
       "request": {
         "method": "GET",
         "url": {
-          "raw": "{{baseUrl}}/utilities/draft",
+          "raw": "http://localhost:8090/api/utilities/draft",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities",
             "draft"
           ]
@@ -111,13 +103,14 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/utilities/{{draftId}}",
+          "raw": "http://localhost:8090/api/utilities/1",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities",
-            "{{draftId}}"
+            "1"
           ]
         },
         "body": {
@@ -135,16 +128,17 @@
       "name": "5. GET лента",
       "request": {
         "method": "GET",
-        "description": "Лента по id: /utilities/feed/1?next=true — следующая после id. Лента без id (как из панели вкладок): удалить из адреса «/:id?next=true», останется {{baseUrl}}/utilities/feed.",
+        "description": "Лента по id: /utilities/feed/1?next=true — следующая после id. Лента без id (как из панели вкладок): удалить из адреса «/:id?next=true», останется http://localhost:8090/api/utilities/feed.",
         "url": {
-          "raw": "{{baseUrl}}/utilities/feed/:id?next=true",
+          "raw": "http://localhost:8090/api/utilities/feed/:id?next=true",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities",
             "feed",
-            ":id"
+            ":id?next=true"
           ],
           "query": [
             {
@@ -174,13 +168,14 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/utilities/{{draftId}}/like",
+          "raw": "http://localhost:8090/api/utilities/1/like",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities",
-            "{{draftId}}",
+            "1",
             "like"
           ]
         },
@@ -200,13 +195,14 @@
       "request": {
         "method": "DELETE",
         "url": {
-          "raw": "{{baseUrl}}/utilities/{{draftId}}",
+          "raw": "http://localhost:8090/api/utilities/1",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "utilities",
-            "{{draftId}}"
+            "1"
           ]
         }
       }
@@ -222,11 +218,12 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/users/register",
+          "raw": "http://localhost:8090/api/users/register",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "users",
             "register"
           ]
@@ -247,11 +244,12 @@
       "request": {
         "method": "POST",
         "url": {
-          "raw": "{{baseUrl}}/users/login",
+          "raw": "http://localhost:8090/api/users/login",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "users",
             "login"
           ]
@@ -263,11 +261,12 @@
       "request": {
         "method": "POST",
         "url": {
-          "raw": "{{baseUrl}}/users/logout",
+          "raw": "http://localhost:8090/api/users/logout",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
           "path": [
+            "api",
             "users",
             "logout"
           ]

@@ -39,7 +39,7 @@ func (r *Repository) GetUtilityFeedItem(id uint, next bool) (ds.Utility, error) 
 	var utility ds.Utility
 	// каждый вызов — новый запрос, чтобы условия не накапливались
 	published := func() *gorm.DB {
-		return r.db.Preload("Creator").Where("status = ?", ds.StatusPublished).Order("id")
+		return r.db.Where("status = ?", ds.StatusPublished).Order("id")
 	}
 
 	switch {

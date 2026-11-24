@@ -140,7 +140,6 @@ func (h *Handler) utilityFeed(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, ds.UtilityFeedItem{
 		Utility:    utility,
-		Creator:    ds.UserSerializer{ID: utility.Creator.ID, Login: utility.Creator.Login},
 		Liked:      ds.BoolToInt(liked),
 		LikesCount: likes,
 	})

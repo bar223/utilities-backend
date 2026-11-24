@@ -5,12 +5,6 @@ package ds
 // запросах отсутствуют: клиент не может их изменить, они вычисляются на
 // бэкенде.
 
-// UserSerializer — создатель услуги, вложенный в ответ ленты.
-type UserSerializer struct {
-	ID    uint   `json:"id"`
-	Login string `json:"login"`
-}
-
 // UtilityListItem — услуга в списке. isMine: 1 — создатель услуги
 // совпадает с текущим пользователем, 0 — нет.
 type UtilityListItem struct {
@@ -19,11 +13,10 @@ type UtilityListItem struct {
 	LikesCount int64 `json:"likesCount"`
 }
 
-// UtilityFeedItem — услуга в ленте с вложенным создателем (вложенная
-// сериализация). liked: 1 — текущий пользователь лайкнул услугу, 0 — нет.
+// UtilityFeedItem — плоский ответ ленты. liked: 1 — текущий пользователь
+// лайкнул услугу, 0 — нет.
 type UtilityFeedItem struct {
 	Utility
-	Creator    UserSerializer `json:"creator"`
 	Liked      int            `json:"liked"`
 	LikesCount int64          `json:"likesCount"`
 }

@@ -609,17 +609,6 @@
                 }
             }
         },
-        "ds.UserSerializer": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "login": {
-                    "type": "string"
-                }
-            }
-        },
         "ds.Utility": {
             "type": "object",
             "properties": {
@@ -670,9 +659,6 @@
                 },
                 "createdAt": {
                     "type": "string"
-                },
-                "creator": {
-                    "$ref": "#/definitions/ds.UserSerializer"
                 },
                 "description": {
                     "type": "string"
