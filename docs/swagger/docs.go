@@ -362,6 +362,38 @@ const docTemplate = `{
             }
         },
         "/utilities/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utilities"
+                ],
+                "summary": "Подробности опубликованной услуги",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id услуги",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.Utility"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -528,6 +560,32 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ds.AttributeInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "value"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.AttributeValue": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.LikeRequest": {
             "type": "object",
             "required": [
@@ -571,6 +629,12 @@ const docTemplate = `{
                 "tariffRate"
             ],
             "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.AttributeInput"
+                    }
+                },
                 "consumptionNorm": {
                     "type": "number"
                 },
@@ -615,6 +679,12 @@ const docTemplate = `{
         "ds.Utility": {
             "type": "object",
             "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.AttributeValue"
+                    }
+                },
                 "consumptionNorm": {
                     "description": "поле по теме",
                     "type": "number"
@@ -656,6 +726,12 @@ const docTemplate = `{
         "ds.UtilityFeedItem": {
             "type": "object",
             "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.AttributeValue"
+                    }
+                },
                 "consumptionNorm": {
                     "description": "поле по теме",
                     "type": "number"
@@ -714,6 +790,12 @@ const docTemplate = `{
         "ds.UtilityListItem": {
             "type": "object",
             "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.AttributeValue"
+                    }
+                },
                 "consumptionNorm": {
                     "description": "поле по теме",
                     "type": "number"

@@ -39,6 +39,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	utilities.GET("", h.WithOptionalAuth, h.GetUtilities)
 	utilities.GET("/feed", h.WithOptionalAuth, h.GetUtilityFeed)
 	utilities.GET("/feed/:id", h.WithOptionalAuth, h.GetUtilityFeedByID)
+	utilities.GET("/:id", h.WithOptionalAuth, h.GetUtilityDetails)
 	utilities.GET("/draft", h.WithAuthCheck, h.GetUtilityDraft)
 	utilities.POST("", h.WithAuthCheck, h.CreateUtility)
 	utilities.PUT("/:id", h.WithAuthCheck, h.PublishUtility)

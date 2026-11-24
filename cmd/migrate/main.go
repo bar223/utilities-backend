@@ -31,6 +31,8 @@ func main() {
 		&ds.User{},
 		&ds.Utility{},
 		&ds.Like{},
+		&ds.Attribute{},
+		&ds.AttributeValue{},
 	)
 	if err != nil {
 		panic("cant migrate db: " + err.Error())

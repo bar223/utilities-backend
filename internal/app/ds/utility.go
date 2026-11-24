@@ -29,8 +29,9 @@ type Utility struct {
 	CreatedAt   time.Time  `json:"createdAt" gorm:"not null"`
 	PublishedAt *time.Time `json:"publishedAt"` // дата формирования (публикации)
 
-	CreatorID uint `gorm:"not null" json:"-"`
-	Creator   User `gorm:"foreignKey:CreatorID" json:"-"`
+	CreatorID  uint             `gorm:"not null" json:"-"`
+	Creator    User             `gorm:"foreignKey:CreatorID" json:"-"`
+	Attributes []AttributeValue `gorm:"foreignKey:UtilityID" json:"attributes,omitempty"`
 }
 
 func (Utility) TableName() string {

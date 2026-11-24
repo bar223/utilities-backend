@@ -39,7 +39,7 @@ func (r *Repository) GetUtilityFeedItem(id uint, next bool) (ds.Utility, error) 
 	var utility ds.Utility
 	// каждый вызов — новый запрос, чтобы условия не накапливались
 	published := func() *gorm.DB {
-		return r.db.Where("status = ?", ds.StatusPublished).Order("id")
+		return r.db.Preload("Attributes.Attribute").Where("status = ?", ds.StatusPublished).Order("id")
 	}
 
 	switch {
@@ -65,6 +65,12 @@ func (r *Repository) GetUtilityDraft(creatorID uint) (ds.Utility, error) {
 	var draft ds.Utility
 	err := r.db.Where("status = ? AND creator_id = ?", ds.StatusDraft, creatorID).First(&draft).Error
 	return draft, err
+}
+
+func (r *Repository) GetUtilityDetails(id uint) (ds.Utility, error) {
+	var utility ds.Utility
+	err := r.db.Preload("Attributes.Attribute").Where("id = ? AND status = ?", id, ds.StatusPublished).First(&utility).Error
+	return utility, err
 }
 
 // CreateUtilityDraft создаёт черновик услуги по названию. Если черновик у
@@ -111,6 +117,15 @@ func (r *Repository) PublishUtility(id, creatorID uint, req ds.PublishUtilityReq
 	}
 	if res.RowsAffected == 0 {
 		return utility, gorm.ErrRecordNotFound
+	}
+	for _, item := range req.Attributes {
+		var attribute ds.Attribute
+		if err := r.db.Where("name = ?", item.Name).FirstOrCreate(&attribute, ds.Attribute{Name: item.Name}).Error; err != nil {
+			return utility, err
+		}
+		if err := r.db.Create(&ds.AttributeValue{UtilityID: id, AttributeID: attribute.ID, Value: item.Value}).Error; err != nil {
+			return utility, err
+		}
 	}
 
 	err := r.db.First(&utility, id).Error

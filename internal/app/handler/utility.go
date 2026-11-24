@@ -167,6 +167,31 @@ func (h *Handler) GetUtilityDraft(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, draft)
 }
 
+// GetUtilityDetails godoc
+// @Summary      Подробности опубликованной услуги
+// @Tags         utilities
+// @Produce      json
+// @Param        id path int true "id услуги"
+// @Success      200 {object} ds.Utility
+// @Failure      404 {object} errorResponse
+// @Router       /utilities/{id} [get]
+func (h *Handler) GetUtilityDetails(ctx *gin.Context) {
+	id, ok := h.parseUtilityID(ctx)
+	if !ok {
+		return
+	}
+	utility, err := h.Repository.GetUtilityDetails(id)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		h.errorHandler(ctx, http.StatusNotFound, errors.New("услуга не найдена"))
+		return
+	}
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, utility)
+}
+
 // CreateUtility godoc
 // @Summary      Добавление услуги с изображением и видео
 // @Description  Создаёт черновик; создатель берётся из JWT. Файлы сохраняются в MinIO под латинскими именами.

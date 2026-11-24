@@ -1,5 +1,22 @@
 basePath: /api
 definitions:
+  ds.AttributeInput:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    - value
+    type: object
+  ds.AttributeValue:
+    properties:
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
   ds.LikeRequest:
     properties:
       value:
@@ -26,6 +43,10 @@ definitions:
     type: object
   ds.PublishUtilityRequest:
     properties:
+      attributes:
+        items:
+          $ref: '#/definitions/ds.AttributeInput'
+        type: array
       consumptionNorm:
         type: number
       description:
@@ -59,6 +80,10 @@ definitions:
     type: object
   ds.Utility:
     properties:
+      attributes:
+        items:
+          $ref: '#/definitions/ds.AttributeValue'
+        type: array
       consumptionNorm:
         description: поле по теме
         type: number
@@ -90,6 +115,10 @@ definitions:
     type: object
   ds.UtilityFeedItem:
     properties:
+      attributes:
+        items:
+          $ref: '#/definitions/ds.AttributeValue'
+        type: array
       consumptionNorm:
         description: поле по теме
         type: number
@@ -132,6 +161,10 @@ definitions:
     type: object
   ds.UtilityListItem:
     properties:
+      attributes:
+        items:
+          $ref: '#/definitions/ds.AttributeValue'
+        type: array
       consumptionNorm:
         description: поле по теме
         type: number
@@ -349,6 +382,27 @@ paths:
       security:
       - BearerAuth: []
       summary: Удаление услуги (soft delete)
+      tags:
+      - utilities
+    get:
+      parameters:
+      - description: id услуги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Utility'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Подробности опубликованной услуги
       tags:
       - utilities
     put:

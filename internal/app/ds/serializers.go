@@ -17,8 +17,8 @@ type UtilityListItem struct {
 // лайкнул услугу, 0 — нет.
 type UtilityFeedItem struct {
 	Utility
-	Liked      int            `json:"liked"`
-	LikesCount int64          `json:"likesCount"`
+	Liked      int   `json:"liked"`
+	LikesCount int64 `json:"likesCount"`
 }
 
 // UtilityLikeResponse — ответ на лайк: состояние после запроса.
@@ -30,10 +30,16 @@ type UtilityLikeResponse struct {
 // PublishUtilityRequest — тело PUT публикации: только поля, которые
 // заполняет пользователь.
 type PublishUtilityRequest struct {
-	Description     string  `json:"description"`
-	TariffRate      float64 `json:"tariffRate" binding:"required,gt=0"`
-	ConsumptionNorm float64 `json:"consumptionNorm" binding:"required,gt=0"`
-	MeasurementUnit string  `json:"measurementUnit" binding:"required"`
+	Description     string           `json:"description"`
+	TariffRate      float64          `json:"tariffRate" binding:"required,gt=0"`
+	ConsumptionNorm float64          `json:"consumptionNorm" binding:"required,gt=0"`
+	MeasurementUnit string           `json:"measurementUnit" binding:"required"`
+	Attributes      []AttributeInput `json:"attributes"`
+}
+
+type AttributeInput struct {
+	Name  string `json:"name" binding:"required"`
+	Value string `json:"value" binding:"required"`
 }
 
 // LikeRequest — тело POST лайка: 0 отменяет лайк, 1 ставит.
